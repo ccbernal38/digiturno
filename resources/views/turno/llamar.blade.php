@@ -17,6 +17,7 @@
 	<div>
 		<div class="row">
 			<h3>{{ $nombre }}</h3>
+			<input id="modulo" type="hidden" value="{{ $id }}">
 		</div>
 		<div class="row">
 			<div class="offset-md-4 col-md-4">
@@ -26,11 +27,10 @@
 				<div class="body-llamar">
 					<h5 id="next" style="font-size: 10vw;text-align: center;"></h5>
 				</div>
-				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="tomaMuestra" value="Pasar a toma de muestra">
-				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="ausente" value="Ausente">
-				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="finish" value="Finalizar turno">
-
-				
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="nextTurno" value="Llamar turno">
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="tomaMuestra" value="Pasar a toma de muestra" >
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="distraido" value="Distraido" >
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="finish" value="Finalizar turno">		
 			</div>
 		</div>
 	</div>
@@ -41,33 +41,61 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 <script>
 	$(document).ready(function(){
-		 $("#tomaMuestra").click(function (e) {
-		 	
-			$.ajaxSetup({
-				headers: {
-					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-				}
-			});
-			e.preventDefault(); 
-			var formData = {
-				recepcion: $('#inputState').val(),
-			};
+		 $("#nextTurno").click(function (e) {		 	
+			e.preventDefault(); 			
 			$.ajax({
 				headers: {
 					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 				},
 				type: 'POST',
 				url: '/llamarTurno',
-				data: formData,
 				dataType: 'json',
+				data:{
+					"id":$('#modulo').val()
+				},
 				success: function (data) {
-					console.log(data);
-					$('#next').css('font-size', '10vw');
-					$('#next').text(data.codigo);
+					if(data.estado == 1){
+						$('#next').css('font-size', '4vw');
+						$('#next').text(data.turno);
+					}else{
+						$('#next').css('font-size', '10vw');
+						$('#next').text(data.turno);
+						$("#tomaMuestra").show();
+						$("#distraido").show();
+						$("#finish").show();
+						$("#nextTurno").hide();
+					}		
 				},
 				error: function (data) {
-					$('#next').css('font-size', '4vw');
-					$('#next').text("No hay turnos que llamar");
+					
+					console.log('Error:', data);
+				}
+			});
+		 });
+		 $("#distraido").click(function (e) {		 	
+			e.preventDefault(); 			
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				type: 'POST',
+				url: '/distraido',
+				dataType: 'json',
+				success: function (data) {
+					if(data.estado == 1){
+						$('#next').css('font-size', '4vw');
+						$('#next').text(data.turno);
+					}else{
+						$('#next').css('font-size', '10vw');
+						$('#next').text(data.turno);
+						$("#tomaMuestra").show();
+						$("#distraido").show();
+						$("#finish").show();
+						$("#nextTurno").hide();
+					}							
+				},
+				error: function (data) {
+					
 					console.log('Error:', data);
 				}
 			});

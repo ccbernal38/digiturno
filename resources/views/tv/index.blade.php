@@ -14,7 +14,7 @@
 .carousel-inner{height:100%;}
 	</style>
 </head>
-<body  onload="setInterval(onTimerElapsed, 1000);">
+<body>
 <!--<body>-->
 	<div style="margin-left: 0px; margin-right: 0px; height: 100%;">
 		<div class="row" style="height: 100%; width: 100%">
@@ -48,20 +48,20 @@
 					<div class="col-md-6"><h3 >Modulo</h3></div>					
 				</div>
 
-				@foreach ($turnos as $item)
+				@for ($i = 0; $i < 5 ; $i++)
 				<div class="row turno-tv">
 					<div class="col-md-6">
-						<div class="turno">
-							<h3 >{{ $item->codigo }}</h3>
+						<div id="turno{{ $i }}" class="turno">
+							<h3></h3>
 						</div>
 					</div>					
 					<div class="col-md-6">
 						<div class="turno">
-							<h3 >{{ $item->modulo }}</h3>
+							<h3></h3>
 						</div>
 					</div>
 				</div>					
-				@endforeach    
+				@endfor  
 			</div>	
 		</div>	
 	
@@ -70,13 +70,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-<script type="text/javascript">
-    function onTimerElapsed() {
-        setTimeout(function(){
-		   window.location.reload(1);
-		}, 1000);
-    }
-</script>
+
 <script type="text/javascript">
     
     $('video').on('play', function (e) {

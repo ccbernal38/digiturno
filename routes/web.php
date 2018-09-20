@@ -22,3 +22,6 @@ Route::get('/tv', function(){
 });
 Route::get('/llamar/{id}', 'TurnoController@viewLlamarTurno');
 Route::post('/llamarTurno', 'TurnoController@llamarTurno');
+Route::post('/pasarTomaMuestra', 'TurnoController@pasarTomaMuestra');
+Route::post('/distraido', 'TurnoController@distraido');
+Route::post('/finalizar', 'TurnoController@finalizar');

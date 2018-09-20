@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\TipoPaciente;
 use App\Turnos;
 use App\Modulo;
+use stdClass;
 class TurnoController extends Controller
 {
     /**
@@ -36,17 +37,62 @@ class TurnoController extends Controller
 
     public function llamarTurno(Request $request){
         //logica para siguiente turno
-        $turnoSiguiente = Turnos::where("estado", 0)->take(1)->get()->get(0);
-        $turnoSiguiente->estado = 1;
-        $turnoSiguiente->modulo = "Cubiculo x";
-        $turnoSiguiente->save();
-        return $turnoSiguiente;
+        $id = $request->input('id');
+         $turnoSiguiente = Turnos::where("estado", 0)->take(1)->get()->get(0);
+        if(empty($turnoSiguiente)){
+            $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
+            return json_encode($json);
+        }else{
+            $turnoSiguiente->estado = 1;
+            $turnoSiguiente->modulo = $id;
+            $turnoSiguiente->save();
+            $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0);            
+            return json_encode($json);
+        }
+        
+        
     }
 
+    public function pasarTomaMuestra(Request $request){
+        //logica para siguiente turno
+        $turnoSiguiente = Turnos::where("estado", 0)->take(1)->get()->get(0);
+        if(empty($turnoSiguiente)){
+            $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
+            return json_encode($json);
+        }else{
+            $turnoSiguiente->estado = 1;
+            $turnoSiguiente->modulo = "Cubiculo x";
+            $turnoSiguiente->save();
+            $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0);            
+            return json_encode($json);
+        }        
+        
+    }
+
+    public function distraido(Request $request){
+        $tipo = $request->input('recepcion');
+    }
+
+    public function finalizar(Request $request){
+                
+    }
+ 
     public function viewLlamarTurno($id){
         $nombre = Modulo::find($id)->nombre;
-        return view('turno.llamar', compact('nombre'));
+        return view('turno.llamar', compact('nombre','id'));
     }
+
+    public function mostrarTV(Request $request){
+        return Turnos::where("enTV", 0)->where("estado", 0)->take(5)->get();
+    }
+
+    public function quitarTV(Request $request){
+        $id = $request->input("id");
+        $turno = Turno::find($id);
+        $turno->enTV = 1;
+        $turno->save();
+    }
+
 
     /**
      * Show the form for creating a new resource.
