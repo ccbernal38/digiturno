@@ -16,7 +16,7 @@
 
 	<div>
 		<div class="row">
-			<h3>{{ $nombre }}</h3>
+			<h3 style="text-align: center;width: 100%;">{{ $nombre }}</h3>
 			<input id="modulo" type="hidden" value="{{ $id }}">
 		</div>
 		<div class="row">

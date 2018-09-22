@@ -38,19 +38,48 @@ class TurnoController extends Controller
     public function llamarTurno(Request $request){
         //logica para siguiente turno
         $id = $request->input('id');
-         $turnoSiguiente = Turnos::where("estado", 0)->take(1)->get()->get(0);
+         $turnoSiguiente = $this->siguienteTurno(0);
         if(empty($turnoSiguiente)){
             $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
             return json_encode($json);
         }else{
             $turnoSiguiente->estado = 1;
-            $turnoSiguiente->modulo = $id;
+            $turnoSiguiente->modulos()->attach($id);
             $turnoSiguiente->save();
             $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0);            
             return json_encode($json);
         }
         
         
+    }
+
+    public function llamarTurnoTomaMuestra(Request $request){
+        //logica para siguiente turno
+        $id = $request->input('id');
+        $turnoSiguiente = $this->siguienteTurno(1);
+        if(empty($turnoSiguiente)){
+            $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
+            return json_encode($json);
+        }else{
+            $turnoSiguiente->estado = 1;
+            $turnoSiguiente->modulos()->attach($id);
+            $turnoSiguiente->save();
+            $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0);            
+            return json_encode($json);
+        }
+    }
+    /**
+        Logica de colas
+        0->Recepcion
+        1->Toma de muestra
+    */
+    public function siguienteTurno($servicio){
+        if ($servicio == 0) {
+            return Turnos::where("estado", 0)->take(1)->get()->get(0);
+        }else if($servicio == 1){
+            return Turnos::where("estado", 1)->take(1)->get()->get(0);
+        }
+
     }
 
     public function pasarTomaMuestra(Request $request){
@@ -61,7 +90,7 @@ class TurnoController extends Controller
             return json_encode($json);
         }else{
             $turnoSiguiente->estado = 1;
-            $turnoSiguiente->modulo = "Cubiculo x";
+            $turnoSiguiente->modulos()->attach($id);
             $turnoSiguiente->save();
             $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0);            
             return json_encode($json);
@@ -83,80 +112,13 @@ class TurnoController extends Controller
     }
 
     public function mostrarTV(Request $request){
-        return Turnos::where("enTV", 0)->where("estado", 0)->take(5)->get();
+        return Turnos::where("enTV", 0)->has('modulos')->with('modulos')->take(5)->get();
     }
 
     public function quitarTV(Request $request){
         $id = $request->input("id");
-        $turno = Turno::find($id);
+        $turno = Turnos::find($id);
         $turno->enTV = 1;
         $turno->save();
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

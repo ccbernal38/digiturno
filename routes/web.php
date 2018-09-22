@@ -25,3 +25,5 @@ Route::post('/llamarTurno', 'TurnoController@llamarTurno');
 Route::post('/pasarTomaMuestra', 'TurnoController@pasarTomaMuestra');
 Route::post('/distraido', 'TurnoController@distraido');
 Route::post('/finalizar', 'TurnoController@finalizar');
+Route::post('/mostrarTV', 'TurnoController@mostrarTV');
+Route::post('/actualizarMostrarTV', 'TurnoController@quitarTV');
