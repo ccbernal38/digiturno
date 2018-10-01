@@ -13,7 +13,7 @@
 	<header>
 		<img src="/img/logo-analizar-web-2017.png" alt="">
 	</header>
-
+	<input id="modulo" type="hidden" value="{{ $id }}">
 	<div>
 		<div class="border-container">
 			
@@ -23,34 +23,70 @@
 					<div class="collapse" id="collapseExample">
 						<div class="card card-body">
 							<label for="inputState">Seleccione el tipo de paciente</label>
-							
-							
-								<select name="recepcion" id="inputState" class="form-control">
-									@foreach ($tipoPaciente as $item)
-									    <option value="{{ $item->sigla }}"> {{ $item->nombre }} </option>
-	  								@endforeach    
-  								</select>
-  								<input type="submit" value="Turno" id="submitrecepcion">
-							
-						</div>
-						<div>
-							
+							<select name="recepcion" id="inputState" class="form-control">
+								@foreach ($tipoPaciente as $item)
+							    <option value="{{ $item->sigla }}"> {{ $item->nombre }} </option>
+  								@endforeach    
+							</select>
+							<input type="submit" value="Turno" id="submitrecepcion">							
 						</div>
 					</div>
 				</div>
-				<div class="container"><a class="botonEntrega" href="#">RESULTADOS</a></div>
-				<div class="container"><a class="botonEntrega" href="#">MUESTRAS PENDIENTES</a></div>
-				<div class="container"><a class="botonEntrega" href="#">PREPARACION DEL PACIENTE / RECIPIENTES</a></div>
-				<div class="container"><a class="botonEntrega" href="#">INFORMACIÓN</a></div>
-				<div class="container"><a class="botonEntrega" href="#">BACTERIOLOGA ANALIEXPRESS</a></div>
+				<div class="container">
+					<a class="botonEntrega" data-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">RESULTADOS</a>
+					<div class="collapse" id="collapseExample1">
+						<div class="card card-body">
+							<input type="submit" value="Turno" id="submitResultados">					
+						</div>
+					</div>
+				</div>
+
+				<div class="container"><a class="botonEntrega"  data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample2">MUESTRAS PENDIENTES</a>
+					<div class="collapse" id="collapseExample2">
+						<div class="card card-body">
+							<input type="submit" value="Turno" id="submitPendientes">					
+						</div>
+					</div>
+				</div>
+				<div class="container"><a class="botonEntrega"  data-toggle="collapse" href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">PREPARACION DEL PACIENTE / RECIPIENTES</a>
+					<div class="collapse" id="collapseExample3">
+						<div class="card card-body">
+							<input type="submit" value="Turno" id="submitPreparacion">					
+						</div>
+					</div>
+				</div>
+				<div class="container"><a class="botonEntrega"  data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4">INFORMACIÓN</a><div class="collapse" id="collapseExample4">
+					<div class="card card-body">
+							<input type="submit" value="Turno" id="submitInformacion">					
+						</div>
+					</div>
+				</div>
+				<div class="container"><a class="botonEntrega"  data-toggle="collapse" href="#collapseExample5" role="button" aria-expanded="false" aria-controls="collapseExample5">BACTERIOLOGA ANALIEXPRESS</a>
+					<div class="collapse" id="collapseExample5">
+						<div class="card card-body">
+							<input type="submit" value="Turno" id="submitAnaliExpress">					
+						</div>
+					</div>
+				</div>
 			
 		</div>
 	</div>
 
 
-  
-
-
+  <div class="row" style="padding-bottom: 50px;">
+			<div class="offset-md-4 col-md-4">
+				<div class="border-llamar">
+					<h3 style="text-align: center; font-weight: bold;">Llamado de turnos</h3>			
+				</div>
+				<div class="body-llamar">
+					<h5 id="next" style="font-size: 10vw;text-align: center;"></h5>
+					<input id="turno" type="hidden" value="{{ $id }}">
+				</div>
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="nextTurno" value="Llamar turno">
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="distraido" value="Distraido" >
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="finish" value="Finalizar turno">		
+			</div>
+		</div>
 
 </body>
 <footer>
@@ -65,8 +101,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 <script>
+
 	$(document).ready(function(){
-		 $("#submitrecepcion").click(function (e) {
+ 		$("#submitResultados").click(function (e) {
+ 			e.preventDefault(); 
+ 			var id_modulo = $('#modulo').val();
+ 			entregaTurno(1, id_modulo);
+		});
+		$("#submitPendientes").click(function (e) {
+ 			e.preventDefault(); 
+ 			var id_modulo = $('#modulo').val();
+ 			entregaTurno(2, id_modulo);
+		});
+		$("#submitPreparacion").click(function (e) {
+ 			e.preventDefault(); 
+ 			var id_modulo = $('#modulo').val();
+ 			entregaTurno(3, id_modulo);
+		});
+		$("#submitInformacion").click(function (e) {
+ 			e.preventDefault(); 
+ 			var id_modulo = $('#modulo').val();
+ 			entregaTurno(4, id_modulo);
+		});
+		$("#submitAnaliExpress").click(function (e) {
+ 			e.preventDefault(); 
+ 			var id_modulo = $('#modulo').val();
+ 			entregaTurno(5, id_modulo);
+		});
+
+		$("#submitrecepcion").click(function (e) {
 		 	
 			$.ajaxSetup({
 				headers: {
@@ -89,15 +152,168 @@
 				dataType: 'json',
 				success: function (data) {
 					console.log(data);
-					alert(data);					
+					 					
 				},
 				error: function (data) {
-					alert("Turno "+data.responseText);
+					
+					window.open('/imprimir/'+data.responseText, '_blank');
+					console.log('Error:', data);
+				}
+			});
+		 });
+
+		 function entregaTurno($tipoTurno, $id_modulo){
+		 	$.ajaxSetup({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				}
+			});
+			
+			var formData = {
+				tipo: $tipoTurno,
+				id: $id_modulo
+			};
+
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				type: 'POST',
+				url: '/turno/entregaInfo',
+				data: formData,
+				dataType: 'json',
+				success: function (data) {
+					console.log(data);					 					
+				},
+				error: function (data) {
+					
+					window.open('/imprimir/'+data.responseText, '_blank');
+					console.log('Error:', data);
+				}
+			});
+		 }
+
+		 $("#nextTurno").click(function (e) {		 	
+			e.preventDefault(); 			
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				type: 'POST',
+				url: '/llamarTurnoInfo',
+				dataType: 'json',
+				data:{
+					"id":$('#modulo').val()
+				},
+				success: function (data) {
+					if(data.estado == 1){
+						$('#next').css('font-size', '4vw');
+						$('#next').text(data.turno);
+						
+						$("#tomaMuestra").hide();
+						$("#distraido").hide();
+						$("#finish").hide();
+						$("#nextTurno").show();
+					}else{
+						$('#next').css('font-size', '10vw');
+						$('#next').text(data.turno);
+						console.log(data);
+						$('#turno').val(data.id);
+						$("#tomaMuestra").show();
+						$("#distraido").show();
+						$("#finish").show();
+						$("#nextTurno").hide();
+					}		
+				},
+				error: function (data) {
+					
+					console.log('Error:', data);
+				}
+			});
+		 });
+		 $("#distraido").click(function (e) {		 	
+			e.preventDefault(); 			
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				type: 'POST',
+				url: '/distraidoInfo',
+				dataType: 'json',
+				data:{
+					'id':$('#turno').val(),
+					"id_modulo":$('#modulo').val()
+				},
+				success: function (data) {
+					console.log(data);
+					if(data.estado == 1){
+						$('#next').css('font-size', '4vw');
+						$('#next').text(data.turno);
+												$('#turno').empty();
+
+						$("#tomaMuestra").hide();
+						$("#distraido").hide();
+						$("#finish").hide();
+						$("#nextTurno").show();
+
+					}else{
+						$('#next').css('font-size', '10vw');
+						$('#next').text(data.turno);
+						$('#turno').val(data.id);
+						$("#tomaMuestra").show();
+						$("#distraido").show();
+						$("#finish").show();
+						$("#nextTurno").hide();
+					}							
+				},
+				error: function (data) {
+					
+					console.log('Error:', data);
+				}
+			});
+		 });
+
+		 $("#finish").click(function (e) {		 	
+			e.preventDefault(); 			
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				type: 'POST',
+				url: '/finalizarInfo',
+				dataType: 'json',
+				data:{
+					'id':$('#turno').val(),
+					"id_modulo":$('#modulo').val()
+				},
+				success: function (data) {
+					console.log(data);
+					if(data.estado == 1){
+						$('#next').css('font-size', '4vw');
+						$('#next').text(data.turno);
+						$('#turno').empty();
+						$("#tomaMuestra").hide();
+						$("#distraido").hide();
+						$("#finish").hide();
+						$("#nextTurno").show();
+					}else{
+						$('#next').css('font-size', '10vw');
+						$('#next').text(data.turno);
+						$('#turno').val(data.id);
+						$("#tomaMuestra").show();
+						$("#distraido").show();
+						$("#finish").show();
+						$("#nextTurno").hide();
+					}							
+				},
+				error: function (data) {
+					
 					console.log('Error:', data);
 				}
 			});
 		 });
 	});
+	
 
 </script>
 </html>

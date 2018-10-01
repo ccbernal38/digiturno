@@ -8,15 +8,25 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+
 	<style>
+		html{
+			cursor: all;
+		}
+
 		html,body{height:100%;}
 .carousel,.item,.active{height:100%;}
 .carousel-inner{height:100%;}
+/* Standard syntax */
+
 	</style>
+
 </head>
 <body>
 <!--<body>-->
-	<div style="margin-left: 0px; margin-right: 0px; height: 100%;">
+	<div style="margin-left: 0px; margin-right: 0px; height: 100%;background-color: white;">
 		<div class="row" style="height: 100%; width: 100%">
 			<div class="col-md-8">
 				<div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel">
@@ -49,7 +59,7 @@
 				</div>
 
 				@for ($i = 0; $i < 5 ; $i++)
-				<div class="row turno-tv">
+				<div id="row{{ $i }}" class="row turno-tv">
 					<div class="col-md-6">
 						<div id="turno{{ $i }}" class="turno">
 							<h3></h3>
@@ -57,7 +67,7 @@
 					</div>					
 					<div class="col-md-6">
 						<div id="modulo{{ $i }}"class="turno">
-							<h3></h3>
+							<h3 class="moduloClass"></h3>
 						</div>
 					</div>
 				</div>					
@@ -74,9 +84,7 @@
 
 <script>
 	$(document).ready(function(){
-		
-		var i = 0;
-	
+		var i = 0;	
 		window.setInterval(function() {
     		consultarTurnos();
 		}, 1000);
@@ -96,21 +104,19 @@
 			async: true,
 			success: function (data) {
 				if(data.length > 0){
-					for (var i = 0; i < data.length; i++) {			
+					for (var i = 0; i < data.length; i++) {	
 						for (var j = 0; j < 5; j++) {
 							var h3Turno = $("#turno"+j+" h3");
 							var h3Modulo = $("#modulo"+j+" h3");
 							if(isEmpty(h3Turno)){
 								h3Turno.text(data[i].codigo);
 								h3Modulo.text(data[i].modulos[data[i].modulos.length-1].nombre);
-								
+								$("#row"+j).addClass('animated tada infinite');					
 								document.getElementById("buzzer").play();; 
 								actualizarMostrarTV(data[i].id);
-								window.setTimeout(function(){
-									h3Turno.text("");
-									h3Modulo.text("");
-								}, 5*1000);								
-								break;
+								wait(30*1000, h3Turno, h3Modulo);
+								stopAnimation(5*1000, $("#row"+j) );															
+								break; 
 							}else{
 								continue;
 							}
@@ -124,9 +130,22 @@
 			}
 		});
 	}
+	async function stopAnimation(ms, comp1) {
+	  return new Promise(resolve => {
+	    setTimeout(function(){
+			comp1.removeClass('infinite');
+	    }, ms);
+	  });
+	}
+	async function wait(ms, comp1, comp2) {
+	  return new Promise(resolve => {
+	    setTimeout(function(){
+			comp1.text("");
+			comp2.text("");
+	    }, ms);
+	  });
+	}
 	function actualizarMostrarTV(id){
-									console.log(id);
-
 		$.ajax({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -139,11 +158,11 @@
 				"id":id,
 			},
 			success: function (data) {
-				
+				console.log(data);
+				console.log(id);
 			},
 			error: function (data) {
-				
-				console.log('Error:', data);
+
 			}
 		});
 	}

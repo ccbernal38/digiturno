@@ -26,9 +26,10 @@
 				</div>
 				<div class="body-llamar">
 					<h5 id="next" style="font-size: 10vw;text-align: center;"></h5>
+					<input id="turno" type="hidden" value="{{ $id }}">
 				</div>
 				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="nextTurno" value="Llamar turno">
-				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="tomaMuestra" value="Pasar a toma de muestra" >
+				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" disabled="true" type="submit" id="tomaMuestra" value="Pasar a toma de muestra" >
 				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="distraido" value="Distraido" >
 				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="finish" value="Finalizar turno">		
 			</div>
@@ -57,9 +58,16 @@
 					if(data.estado == 1){
 						$('#next').css('font-size', '4vw');
 						$('#next').text(data.turno);
+						
+						$("#tomaMuestra").hide();
+						$("#distraido").hide();
+						$("#finish").hide();
+						$("#nextTurno").show();
 					}else{
 						$('#next').css('font-size', '10vw');
 						$('#next').text(data.turno);
+						console.log(data);
+						$('#turno').val(data.id);
 						$("#tomaMuestra").show();
 						$("#distraido").show();
 						$("#finish").show();
@@ -81,13 +89,66 @@
 				type: 'POST',
 				url: '/distraido',
 				dataType: 'json',
+				data:{
+					'id':$('#turno').val(),
+					"id_modulo":$('#modulo').val()
+				},
 				success: function (data) {
+					console.log(data);
 					if(data.estado == 1){
 						$('#next').css('font-size', '4vw');
 						$('#next').text(data.turno);
+												$('#turno').empty();
+
+						$("#tomaMuestra").hide();
+						$("#distraido").hide();
+						$("#finish").hide();
+						$("#nextTurno").show();
+
 					}else{
 						$('#next').css('font-size', '10vw');
 						$('#next').text(data.turno);
+						$('#turno').val(data.id);
+						$("#tomaMuestra").show();
+						$("#distraido").show();
+						$("#finish").show();
+						$("#nextTurno").hide();
+					}							
+				},
+				error: function (data) {
+					
+					console.log('Error:', data);
+				}
+			});
+		 });
+
+		 $("#finish").click(function (e) {		 	
+			e.preventDefault(); 			
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				type: 'POST',
+				url: '/finalizar',
+				dataType: 'json',
+				data:{
+					'id':$('#turno').val(),
+					"id_modulo":$('#modulo').val()
+				},
+				success: function (data) {
+					console.log(data);
+					if(data.estado == 1){
+						$('#next').css('font-size', '4vw');
+						$('#next').text(data.turno);
+						$('#turno').empty();
+						$("#tomaMuestra").hide();
+						$("#distraido").hide();
+						$("#finish").hide();
+						$("#nextTurno").show();
+					}else{
+						$('#next').css('font-size', '10vw');
+						$('#next').text(data.turno);
+						$('#turno').val(data.id);
 						$("#tomaMuestra").show();
 						$("#distraido").show();
 						$("#finish").show();
