@@ -62,9 +62,10 @@
 	</style>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body onload="window.print(); window.close(); " style="writing-mode: vertical-lr;">
+
+<body onload="window.print(); window.close();" style="writing-mode: vertical-lr;">
 	<div id="content">
-		
+	@foreach ($turno as $element)			
 		<div>
 			<h3>ANALIZAR LABORATORIO CLINICO</h3>
 			<h3>BIENVENIDO</h3>
@@ -73,8 +74,9 @@
 			<h2>{{$time}}</h2>
 		</div>
 		<div>
-			<h1 style="font-weight: bold; text-align: center;">{{$turno}}</h1>
+			<h1 style="font-weight: bold; text-align: center;">{{$element}}</h1>
 		</div>
+	@endforeach
 	</div>
 </body>
 

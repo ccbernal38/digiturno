@@ -26,6 +26,6 @@ class SendViewTurno
      */
     public function handle(TurnWasReceived $event)
     {
-        //
+        //echo "listenerTurnWasReceive a";
     }
 }

@@ -16,7 +16,7 @@
 
 	<div>
 		<div class="row">
-			<h3 style="text-align: center;width: 100%;">{{ $nombre }}</h3>
+			<h1 style="text-align: center;width: 100%; font-weight: bold;">{{ $nombre }}</h1>
 			<input id="modulo" type="hidden" value="{{ $id }}">
 		</div>
 		<div class="row">
@@ -24,14 +24,46 @@
 				<div class="border-llamar">
 					<h3 style="text-align: center;">Turno</h3>			
 				</div>
-				<div class="body-llamar">
-					<h5 id="next" style="font-size: 10vw;text-align: center;"></h5>
-					<input id="turno" type="hidden" value="{{ $id }}">
-				</div>
+			</div>	
+			<div class="body-llamar row" style="width: 100%">
+				<h5 id="next" style="font-size: 10vw;text-align: center;"></h5>			
+			</div>
+			<div class="offset-md-4 col-md-4">
+				<input id="turno" type="hidden" value="{{ $id }}">
 				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="nextTurno" value="Llamar turno">
 				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" disabled="true" type="submit" id="tomaMuestra" value="Pasar a toma de muestra" >
-				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="distraido" value="Distraido" >
-				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="finish" value="Finalizar turno">		
+				<input class="btn btn-primary" style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="atender" value="Atender turno" >
+				<h2 id="cuentaRegresiva" style="text-align: center;"></h2>
+				<input class="btn btn-success" style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" type="submit" id="finish" value="Finalizar turno">		
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="offset-md-1 col-md-5"><input type="submit" class="btn btn-info" data-toggle="modal" data-target="#exampleModalCenter" style="width: 100%;" name="pausar" value="Pausar servicio"></h3></div>
+		<div class="col-md-5"><input type="submit" class="btn btn-info" style="width: 100%;" name="espera" value="Turno en espera"></div>
+	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalCenterTitle">Pausar servicio</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<select name="pausa" id="selectpausa"  class="form-control">
+						@foreach ($motivoPausa as $item)
+						    <option value="{{ $item->id }}"> {{ $item->nombre }} </option>
+						@endforeach    
+					</select>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					<button id="aceptarModalPausar" type="button" class="btn btn-primary">Aceptar</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -44,124 +76,186 @@
 	$(document).ready(function(){
 		 $("#nextTurno").click(function (e) {		 	
 			e.preventDefault(); 			
-			$.ajax({
-				headers: {
-					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-				},
-				type: 'POST',
-				url: '/llamarTurno',
-				dataType: 'json',
-				data:{
-					"id":$('#modulo').val()
-				},
-				success: function (data) {
-					if(data.estado == 1){
-						$('#next').css('font-size', '4vw');
-						$('#next').text(data.turno);
-						
-						$("#tomaMuestra").hide();
-						$("#distraido").hide();
-						$("#finish").hide();
-						$("#nextTurno").show();
-					}else{
-						$('#next').css('font-size', '10vw');
-						$('#next').text(data.turno);
-						console.log(data);
-						$('#turno').val(data.id);
-						$("#tomaMuestra").show();
-						$("#distraido").show();
-						$("#finish").show();
-						$("#nextTurno").hide();
-					}		
-				},
-				error: function (data) {
-					
-					console.log('Error:', data);
-				}
-			});
+			llamarTurno();
+			
 		 });
-		 $("#distraido").click(function (e) {		 	
+		 $("#atender").click(function (e) {		 	
 			e.preventDefault(); 			
-			$.ajax({
-				headers: {
-					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-				},
-				type: 'POST',
-				url: '/distraido',
-				dataType: 'json',
-				data:{
-					'id':$('#turno').val(),
-					"id_modulo":$('#modulo').val()
-				},
-				success: function (data) {
-					console.log(data);
-					if(data.estado == 1){
-						$('#next').css('font-size', '4vw');
-						$('#next').text(data.turno);
-												$('#turno').empty();
-
-						$("#tomaMuestra").hide();
-						$("#distraido").hide();
-						$("#finish").hide();
-						$("#nextTurno").show();
-
-					}else{
-						$('#next').css('font-size', '10vw');
-						$('#next').text(data.turno);
-						$('#turno').val(data.id);
-						$("#tomaMuestra").show();
-						$("#distraido").show();
-						$("#finish").show();
-						$("#nextTurno").hide();
-					}							
-				},
-				error: function (data) {
-					
-					console.log('Error:', data);
-				}
-			});
+			detener = 1;
 		 });
 
-		 $("#finish").click(function (e) {		 	
+		$("#finish").click(function (e) {		 	
 			e.preventDefault(); 			
-			$.ajax({
-				headers: {
-					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-				},
-				type: 'POST',
-				url: '/finalizar',
-				dataType: 'json',
-				data:{
-					'id':$('#turno').val(),
-					"id_modulo":$('#modulo').val()
-				},
-				success: function (data) {
-					console.log(data);
+			finalizar();
+		});	
+		$('#aceptarModalPausar').click(function(event) {
+			event.preventDefault();
+			window.location.replace("/");
+		});
+	});
+	function llamarTurno(){
+		clearTimeout(timeout);
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			type: 'POST',
+			url: '/llamarTurno',
+			dataType: 'json',
+			data:{
+				"id":$('#modulo').val()
+			},
+			success: function (data) {
+				console.log(data);
+				$('.body-llamar').empty();
+				
+						if(data.estado == 1){
+							$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">"+data.turno+"</h5>").appendTo('.body-llamar');
+							$('#next').css('font-size', '4vw');
+							$('#next').text(data.turno);						
+							$("#tomaMuestra").hide();
+							$("#atender").hide();
+							$("#finish").hide();
+							$("#nextTurno").show();
+							$('#cuentaRegresiva').text('');
+						}else{
+							$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">"+data.turno+"</h5>").appendTo('.body-llamar');
+							$('#next').css('font-size', '10vw');
+							$('#next').text(data.turno);
+							$('#turno').val(data.id);
+							$("#tomaMuestra").show();
+							$("#atender").show();
+							$("#finish").show();
+							$("#nextTurno").hide();
+							temporizador();
+						}	
+					
+			},
+			error: function (data) {
+				
+				console.log('Error:', data);
+			}
+		});
+	}
+	function finalizar(){
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			type: 'POST',
+			url: '/finalizar',
+			dataType: 'json',
+			data:{
+				'id':$('#turno').val(),
+				"id_modulo":$('#modulo').val()
+			},
+			success: function (data) {
+				clearTimeout(timeout);
+				$('.body-llamar').empty();
+				
+						if(data.estado == 1){
+							
+							$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">No hay turnos disponibles</h5>").appendTo('.body-llamar');	
+							$('#next').css('font-size', '4vw');					
+							$("#tomaMuestra").hide();
+							$("#atender").hide();
+							$("#finish").hide();
+							$("#nextTurno").show();
+							$('#cuentaRegresiva').text('');
+						}else{
+							$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">"+data.turno+"</h5>").appendTo('.body-llamar');
+							$('#next').css('font-size', '10vw');
+							$('#next').text(data.turno);
+							$('#turno').val(data.id);
+							$("#tomaMuestra").show();
+							$("#atender").show();
+							$("#finish").show();
+							$("#nextTurno").hide();
+							temporizador();
+						}	
+					
+								
+			},
+			error: function (data) {
+				
+				console.log('Error:', data);
+			}
+		});
+	}
+	function distraido(){
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			type: 'POST',
+			url: '/distraido',
+			dataType: 'json',
+			data:{
+				'id':$('#turno').val(),
+				"id_modulo":$('#modulo').val()
+			},
+			success: function (data) {
 					if(data.estado == 1){
 						$('#next').css('font-size', '4vw');
 						$('#next').text(data.turno);
 						$('#turno').empty();
 						$("#tomaMuestra").hide();
-						$("#distraido").hide();
+						$("#atender").hide();
 						$("#finish").hide();
 						$("#nextTurno").show();
+						$('#cuentaRegresiva').text('');
 					}else{
 						$('#next').css('font-size', '10vw');
-						$('#next').text(data.turno);
+						$('#next').text(data.codigo);
 						$('#turno').val(data.id);
 						$("#tomaMuestra").show();
-						$("#distraido").show();
+						$("#atender").show();
 						$("#finish").show();
 						$("#nextTurno").hide();
-					}							
-				},
-				error: function (data) {
-					
-					console.log('Error:', data);
-				}
-			});
-		 });
-	});
 
+						temporizador();
+					}	
+										
+			},
+			error: function (data) {
+				
+				console.log('Error:', data);
+			}
+		});
+	}
+	var totalTiempo = 30;
+
+	var detener = 0;
+	var timeout;
+	function temporizador(){
+		/* Determinamos la url donde redireccionar */
+		document.getElementById('cuentaRegresiva').innerHTML = "Enviando a distraido en "+totalTiempo+" segundos";
+		if(totalTiempo == 0)
+		{
+			if(detener == 0){
+				distraido();
+			 	totalTiempo = 30;	
+			 	clearTimeout(timeout);
+
+			}else{
+				clearTimeout(timeout);
+				detener = 0;
+			}
+			 return;
+		}else{
+			/* Restamos un segundo al tiempo restante */
+			totalTiempo -= 1;
+			/* Ejecutamos nuevamente la función al pasar 1000 milisegundos (1 segundo) */
+			if (detener == 0) 
+			{
+				timeout = setTimeout("temporizador()", 1000);
+			}else{
+				totalTiempo = 30;
+				detener = 0;
+				clearTimeout(timeout);
+				return;
+			}
+		}
+	}
 </script>
 </html>

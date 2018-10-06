@@ -11,6 +11,8 @@
 |
 */
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 Route::get('/','SedeController@index');
 Route::resource('turno', 'TurnoController');
@@ -48,3 +50,8 @@ Route::post('/turno/entregaInfo', ['uses' => 'TurnoController@entregaTurnoInform
 Route::post('/llamarTurnoInfo', 'TurnoController@llamarTurnoInfo');
 Route::post('/distraidoInfo', 'TurnoController@distraidoInfo');
 Route::post('/finalizarInfo', 'TurnoController@finalizarInfo');
+
+Route::get('/contenidoPrueba', function(){
+	return  basename($file);
+
+});

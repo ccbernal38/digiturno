@@ -8,6 +8,9 @@ use App\Turnos;
 use App\Modulo;
 use stdClass;
 use Carbon\Carbon;
+use App\Events\TurnWasReceived;
+use App\GrupoFamiliar;
+use App\MotivoPausa;
 class TurnoController extends Controller
 {
     /**
@@ -24,6 +27,7 @@ class TurnoController extends Controller
     */
     public function imprimir($turno){
         $time = Carbon::now();        
+        $turno = explode(',', $turno);
         return view('turno.imprimir', compact('turno', 'time'));
     }
 
@@ -42,18 +46,29 @@ class TurnoController extends Controller
         Metodo que genera el turno para la recepcion
     */
     public function entrega(Request $request){
-        $tipo = $request->input('recepcion');
-        $object = TipoPaciente::where('sigla','like', $tipo)->get();
-        
-        $turno = $object[0]->sigla.$object[0]->consecutivo;
-        $object[0]->consecutivo = $object[0]->consecutivo + 1;
-        $object[0]->save();
+        $inputs = $request->all();
+        $result = array();
+        $grupoFamiliar = new GrupoFamiliar();
+        $grupoFamiliar->save();
+        for ($i=0; $i < count($inputs); $i++) { 
+            $tipo = $inputs["recepcion".$i];
+            $object = TipoPaciente::where('sigla','like', $tipo)->get();
+            
+            $turno = $object[0]->sigla.$object[0]->consecutivo;
+            $object[0]->consecutivo = $object[0]->consecutivo + 1;
+            $object[0]->save();
+            
+            
+            
+            $turnoNuevo = new Turnos();
+            $turnoNuevo->codigo = $turno;
+            $turnoNuevo->estado = 0;
+            $turnoNuevo->grupo_familiar_id = $grupoFamiliar->id;
+            $turnoNuevo->save();
 
-        $turnoNuevo = new Turnos();
-        $turnoNuevo->codigo = $turno;
-        $turnoNuevo->estado = 0;
-        $turnoNuevo->save();
-        return $turno;
+            array_push($result,$turno);
+        }
+        return json_encode($result);
     }
     /**
         Metodo POST para generar el turno de las informadoras
@@ -113,7 +128,6 @@ class TurnoController extends Controller
             $turnoSiguiente->enTV = 0;
             $turnoSiguiente->modulos()->attach($id);
             $turnoSiguiente->save();
-            event(new TurnWasReceived);
             $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0, 'id' => $turnoSiguiente->id);            
             return json_encode($json);
         }
@@ -183,11 +197,22 @@ class TurnoController extends Controller
             $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
             return json_encode($json);
         }else{
-            $turnoSiguiente->estado = 1;
-            $turnoSiguiente->enTV = 0;
-            $turnoSiguiente->modulos()->attach($id);
-            $turnoSiguiente->save();
-            $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0, 'id' => $turnoSiguiente->id);            
+            $grupoFamiliar = $turnoSiguiente;
+            $grupoFamiliar->estado = 1;
+            $grupoFamiliar->save();
+            for ($i=0; $i < count($turnoSiguiente->turnos); $i++) { 
+               $turnoSiguiente->turnos[$i]->estado = 1;
+                $turnoSiguiente->turnos[$i]->enTV = 0;
+                $turnoSiguiente->turnos[$i]->modulos()->attach($id);
+                $turnoSiguiente->turnos[$i]->grupo_familiar_id = $grupoFamiliar->id;
+                $turnoSiguiente->turnos[$i]->save();
+            }
+            
+            
+            $json = array('turno' => $turnoSiguiente->turnos[0]->codigo, 'estado' => 0, 'id' => $turnoSiguiente->id);   
+
+            event(new TurnWasReceived($turnoSiguiente->turnos[0]->codigo, Modulo::find($id)));
+            
             return json_encode($json);
         }
     }
@@ -199,9 +224,9 @@ class TurnoController extends Controller
     */
     public function siguienteTurno($servicio){
         if ($servicio == 0) {
-            return Turnos::where("estado", 0)->orWhere("estado", 2)->take(1)->get()->get(0);
+            return GrupoFamiliar::with('turnos')->where("estado", 0)->orWhere("estado", 2)->take(1)->get()->get(0);
         }else if($servicio == 1){
-            return Turnos::where("estado", 0)->orWhere("estado", 2)->take(2)->get()->get(1);
+            return GrupoFamiliar::with('turnos')->where("estado", 0)->orWhere("estado", 2)->take(2)->get()->get(1);
         }
 
     }
@@ -212,7 +237,7 @@ class TurnoController extends Controller
     public function distraido(Request $request){
         $id_turno = $request->input('id');
         $id_modulo = $request->input('id_modulo');
-        $turno = Turnos::find($id_turno);
+        $turno = GrupoFamiliar::find($id_turno);
         if ($turno->cantLlamados == 3) {
             $turno->estado = 4;
             $turno->save();            
@@ -230,7 +255,7 @@ class TurnoController extends Controller
     public function finalizar(Request $request){
         $id_turno = $request->input('id');
         $id_modulo = $request->input('id_modulo');
-        $turno = Turnos::find($id_turno);
+        $turno = GrupoFamiliar::find($id_turno);
         $turno->estado = 4;
         $turno->save();        
         return $this->llamar($id_modulo,0);
@@ -241,7 +266,8 @@ class TurnoController extends Controller
     */
     public function viewLlamarTurno($id){
         $nombre = Modulo::find($id)->nombre;
-        return view('turno.llamar', compact('nombre','id'));
+        $motivoPausa = MotivoPausa::all();
+        return view('turno.llamar', compact('nombre','id', 'motivoPausa'));
     }
 
     //-------------------------------------------------------
