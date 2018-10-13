@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Events\TurnWasReceived;
 use App\GrupoFamiliar;
 use App\MotivoPausa;
+
 class TurnoController extends Controller
 {
     /**
@@ -58,16 +59,16 @@ class TurnoController extends Controller
             $object[0]->consecutivo = $object[0]->consecutivo + 1;
             $object[0]->save();
             
-            
-            
             $turnoNuevo = new Turnos();
             $turnoNuevo->codigo = $turno;
             $turnoNuevo->estado = 0;
+            
             $turnoNuevo->grupo_familiar_id = $grupoFamiliar->id;
             $turnoNuevo->save();
-
+            $grupoFamiliar->prioridad = $object[0]->prioridad;
             array_push($result,$turno);
         }
+        $grupoFamiliar->save();
         return json_encode($result);
     }
     /**
@@ -205,6 +206,7 @@ class TurnoController extends Controller
                 $turnoSiguiente->turnos[$i]->enTV = 0;
                 $turnoSiguiente->turnos[$i]->modulos()->attach($id);
                 $turnoSiguiente->turnos[$i]->grupo_familiar_id = $grupoFamiliar->id;
+                $turnoSiguiente->turnos[$i]->llamado = Carbon::now();
                 $turnoSiguiente->turnos[$i]->save();
             }
             
@@ -224,7 +226,19 @@ class TurnoController extends Controller
     */
     public function siguienteTurno($servicio){
         if ($servicio == 0) {
-            return GrupoFamiliar::with('turnos')->where("estado", 0)->orWhere("estado", 2)->take(1)->get()->get(0);
+            $turnosAnteriores = GrupoFamiliar::with('turnos')->where("estado", 4)->orderBy('updated_at', 'desc')->take(2)->get();
+            $turno1 = $turnosAnteriores->get(0)->turnos[0]->prioridad;
+            $turno2 = $turnosAnteriores->get(1)->turnos[0]->prioridad;
+            if($turno1 == 0 && $turno2 == 0){
+                if(GrupoFamiliar::with('turnos')->where('prioridad', 1)->where("estado", 0)->orWhere("estado", 2)->count() > 0){
+                    return GrupoFamiliar::with('turnos')->where('prioridad', 1)->where("estado", 0)->orWhere("estado", 2)->take(1)->get()->get(0);  
+                }else{
+                    return GrupoFamiliar::with('turnos')->where('prioridad', 0)->where("estado", 0)->orWhere("estado", 2)->take(1)->get()->get(0);  
+                }
+                
+            }else{
+                return GrupoFamiliar::with('turnos')->where('prioridad', 0)->where("estado", 0)->orWhere("estado", 2)->take(1)->get()->get(0);
+            }
         }else if($servicio == 1){
             return GrupoFamiliar::with('turnos')->where("estado", 0)->orWhere("estado", 2)->take(2)->get()->get(1);
         }
@@ -237,15 +251,16 @@ class TurnoController extends Controller
     public function distraido(Request $request){
         $id_turno = $request->input('id');
         $id_modulo = $request->input('id_modulo');
-        $turno = GrupoFamiliar::find($id_turno);
+        $turno = GrupoFamiliar::with('turnos')->find($id_turno);
         if ($turno->cantLlamados == 3) {
             $turno->estado = 4;
             $turno->save();            
         }else{
             $turno->estado = 2;
-            $turno->enTV = 0;
-            $turno->cantLlamados = $turno->cantLlamados + 1;
-            $turno->save();
+            $turno->turnos[0]->enTV = 0;
+            $turno->turnos[0]->cantLlamados = $turno->cantLlamados + 1;
+            
+            $turno->push();
         }
         return $this->llamar($id_modulo, 1);
     }

@@ -11,6 +11,8 @@
 <link rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
 
+<link rel="stylesheet" href="{{ asset('css/owl.carousel.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/owl.theme.default.css') }}" />
 
 	<style>
 		html{
@@ -112,14 +114,16 @@
 	</div>
 	<audio id="buzzer" src="/sound/timbre.ogg" type="audio/ogg"/>
 
- <script src=" {{ asset('js/app.js') }} " type="text/javascript" charset="utf-8" async defer></script>
+<script src=" {{ asset('js/app.js') }} " type="text/javascript" charset="utf-8" async defer></script>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-
+<script src=" {{ asset('js/owl.carousel.js') }} " type="text/javascript" charset="utf-8"></script>
 <script>
 	$(document).ready(function(){
-		$('.carousel').carousel();
+		 
 		$('#carouselExampleFade').on('slide.bs.carousel', function () {
 			try {
     			document.getElementsByClassName('active')[0].firstElementChild.play();
@@ -129,7 +133,12 @@
 			}
 	
 		});
-		
+		$('video .active').on('play', function (e) {
+			$("#carouselExampleFade").carousel('pause');
+		});
+		$('video .active').on('stop pause ended', function (e) {
+			$("#carouselExampleFade").carousel('next');
+		});
 	});
 	function isEmpty( el ){
 		return !$.trim(el.html())
@@ -147,20 +156,13 @@
 	    setTimeout(function(){
 			comp1.text("");
 			comp2.text("");
-
-
 	    }, ms);
 	  });
 	}
 </script>
 <script type="text/javascript">
     
-    $('video').on('play', function (e) {
-    	$("#carouselExampleFade").carousel('pause');
-	});
-	$('video').on('stop pause ended', function (e) {
-	    $("#carouselExampleFade").carousel();
-	});
+   
 
 	
 </script>

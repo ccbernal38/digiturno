@@ -39,7 +39,6 @@
 					<input type="submit" class="btn btn-primary" id="entrar" value="Entrar" style="margin: auto;margin-top: 20px;">
 				</div>
 			</div>
-			
 		</div>
 	</div>
 </body>

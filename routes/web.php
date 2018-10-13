@@ -12,6 +12,7 @@
 */
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\GrupoFamiliar;
 
 
 Route::get('/','SedeController@index');
@@ -22,6 +23,12 @@ Route::get('/tv', function(){
 	$turnos = App\Turnos::where('estado', 1)->get();
 	return view('tv.index',compact('turnos'));
 });
+
+Route::get('/tvprueba', function(){
+	$turnos = App\Turnos::where('estado', 1)->get();
+	return view('tv.index2',compact('turnos'));
+});
+
 Route::post('/sede/modulos', function(Request $request){
 	$id = $request->input('id_sede');
 	return App\Modulo::where('sedes_id',$id)->get();
@@ -51,7 +58,9 @@ Route::post('/llamarTurnoInfo', 'TurnoController@llamarTurnoInfo');
 Route::post('/distraidoInfo', 'TurnoController@distraidoInfo');
 Route::post('/finalizarInfo', 'TurnoController@finalizarInfo');
 
-Route::get('/contenidoPrueba', function(){
-	return  basename($file);
-
+Route::get('/admin/turnos', function(){
+	return view("admin.index");
+});
+Route::get('/admin/modulos', function(){
+	return view("admin.modulos");
 });
