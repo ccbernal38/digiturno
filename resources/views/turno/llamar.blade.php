@@ -16,8 +16,9 @@
 
 	<div>
 		<div class="row">
-			<h1 style="text-align: center;width: 100%; font-weight: bold;">{{ $nombre }}</h1>
+			<h1 style="text-align: center;width: 100%; font-weight: bold;">{{ $nombreModulo }}</h1>
 			<input id="modulo" type="hidden" value="{{ $id }}">
+			<input id="nombreRecepcion" type="hidden" value="{{ $nombre }}">
 		</div>
 		<div class="row">
 			<div class="offset-md-4 col-md-4">
@@ -28,7 +29,7 @@
 			<div class="body-llamar row" style="width: 100%">
 				<h5 id="next" style="font-size: 10vw;text-align: center;"></h5>			
 			</div>
-			<div class="offset-md-4 col-md-4">
+			<div class="offset-md-4 col-md-4">				
 				<input id="turno" type="hidden" value="{{ $id }}">
 				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;" type="submit" id="nextTurno" value="Llamar turno">
 				<input style="align-content: center; align-content: center; text-align: center;margin: 0 auto;float: none;width: 100%;display: none;" disabled="true" type="submit" id="tomaMuestra" value="Pasar a toma de muestra" >
@@ -118,40 +119,42 @@
 	});
 	function llamarTurno(){
 		clearTimeout(timeout);
+		$("#nextTurno").prop('disabled', true);
 		$.ajax({
 			headers: {
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+				'Content-Type':'application/json;charset=utf8'
 			},
 			type: 'POST',
 			url: '/llamarTurno',
 			dataType: 'json',
 			data:{
-				"id":$('#modulo').val()
+				"id":$('#modulo').val(),
+				"nombre":$('#nombreRecepcion').val(),
 			},
 			success: function (data) {
-				console.log(data);
+				$("#nextTurno").prop('disabled', false);
 				$('.body-llamar').empty();
-				
-						if(data.estado == 1){
-							$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">"+data.turno+"</h5>").appendTo('.body-llamar');
-							$('#next').css('font-size', '4vw');
-							$('#next').text(data.turno);						
-							$("#tomaMuestra").hide();
-							$("#atender").hide();
-							$("#finish").hide();
-							$("#nextTurno").show();
-							$('#cuentaRegresiva').text('');
-						}else{
-							$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">"+data.turno+"</h5>").appendTo('.body-llamar');
-							$('#next').css('font-size', '10vw');
-							$('#next').text(data.turno);
-							$('#turno').val(data.id);
-							$("#tomaMuestra").show();
-							$("#atender").show();
-							$("#finish").show();
-							$("#nextTurno").hide();
-							temporizador();
-						}	
+				if(data.estado == 1){
+					$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">"+data.turno+"</h5>").appendTo('.body-llamar');
+					$('#next').css('font-size', '4vw');
+					$('#next').text(data.turno);						
+					$("#tomaMuestra").hide();
+					$("#atender").hide();
+					$("#finish").hide();
+					$("#nextTurno").show();
+					$('#cuentaRegresiva').text('');
+				}else{
+					$("<h5 id=\"next\" style=\"font-size: 10vw;text-align: center;margin: auto\">"+data.turno+"</h5>").appendTo('.body-llamar');
+					$('#next').css('font-size', '10vw');
+					$('#next').text(data.turno);
+					$('#turno').val(data.id);
+					$("#tomaMuestra").show();
+					$("#atender").show();
+					$("#finish").show();
+					$("#nextTurno").hide();
+					temporizador();
+				}	
 					
 			},
 			error: function (data) {
@@ -170,7 +173,8 @@
 			dataType: 'json',
 			data:{
 				'id':$('#turno').val(),
-				"id_modulo":$('#modulo').val()
+				"id_modulo":$('#modulo').val(),
+				"nombre":$('#nombreRecepcion').val(),
 			},
 			beforeSend: function(){
 				$('#finalizar').attr("disabled", true);
@@ -211,7 +215,8 @@
 	function distraido(){
 		var json = {
 			'id':$('#turno').val(),
-				"id_modulo":$('#modulo').val()
+			"id_modulo":$('#modulo').val(),
+			"nombre":$('#nombreRecepcion').val(),
 		};
 		console.log(json);
 		$.ajax({
@@ -223,7 +228,8 @@
 			dataType: 'json',
 			data:{
 				'id':$('#turno').val(),
-				"id_modulo":$('#modulo').val()
+				"id_modulo":$('#modulo').val(),
+				"nombre":$('#nombreRecepcion').val(),
 			},
 			success: function (data) {
 				console.log(data);

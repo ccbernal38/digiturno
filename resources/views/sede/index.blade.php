@@ -36,6 +36,13 @@
 							<option value="-1"></option>
 
 					</select>							
+				</div>
+			</div>
+			<div class="container" style="background-color: white;">
+				<a class="botonEntrega" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></a>
+				<div class="card card-body">
+					<label for="recepcionInput">Recepcionista:</label>							
+					<input id="recepcionInput" type="text" class="form-control" placeholder="Ingrese su nombre">							
 					<input type="submit" class="btn btn-primary" id="entrar" value="Entrar" style="margin: auto;margin-top: 20px;">
 				</div>
 			</div>
@@ -49,16 +56,19 @@
 <script>
 	$(document).ready(function(){
 		$('#entrar').click(function(event) {
-			if($(".selector-modulo").val() != -1){
-				if($(".selector-modulo").val() == 21){
-					window.location="/turno/"+$(".selector-modulo").val();	
+			if ($('#recepcionInput').val() != "") {
+				if($(".selector-modulo").val() != -1){
+					if($(".selector-modulo").val() == 21){
+						window.location="/turno/"+$(".selector-modulo").val()+"/"+encodeURI($('#recepcionInput').val());	
+					}else{
+						window.location="/llamar/"+$(".selector-modulo").val()+"/"+encodeURI($('#recepcionInput').val());		
+					}				
 				}else{
-					window.location="/llamar/"+$(".selector-modulo").val();		
-				}				
+					alert("Debe seleccionar un modulo");
+				}
 			}else{
-				alert("Debe seleccionar un modulo");
+				alert("Debe ingresar su nombre antes de continuar");
 			}
-			
 		});
 
 		$(".selector-sede").change(function() {

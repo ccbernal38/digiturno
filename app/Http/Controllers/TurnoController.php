@@ -39,6 +39,8 @@ class TurnoController extends Controller
         return view("turno.entrega", compact('tipoPaciente', 'id'));
     }
 
+
+
      //-------------------------------------------------------
     //              INFORMACION
     //-------------------------------------------------------
@@ -186,13 +188,14 @@ class TurnoController extends Controller
     public function llamarTurno(Request $request){
         //logica para siguiente turno
         $id = $request->input('id');
-        return $this->llamar($id,0);
+        $nombre = $request->input('nombre');
+        return $this->llamar($id,0,$nombre);
     }
 
     /**
         Metodo que permite llamar el turno siguiente en recepcion
     */
-    function llamar($id, $pos){
+    function llamar($id, $pos, $nombre){
         $turnoSiguiente = $this->siguienteTurno($pos);
         if(empty($turnoSiguiente)){
             $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
@@ -204,7 +207,7 @@ class TurnoController extends Controller
             for ($i=0; $i < count($turnoSiguiente->turnos); $i++) { 
                $turnoSiguiente->turnos[$i]->estado = 1;
                 $turnoSiguiente->turnos[$i]->enTV = 0;
-                $turnoSiguiente->turnos[$i]->modulos()->attach($id);
+                $turnoSiguiente->turnos[$i]->modulos()->attach($id, ['nombre' => $nombre]);
                 $turnoSiguiente->turnos[$i]->grupo_familiar_id = $grupoFamiliar->id;
                 $turnoSiguiente->turnos[$i]->llamado = Carbon::now();
                 $turnoSiguiente->turnos[$i]->save();
@@ -213,7 +216,12 @@ class TurnoController extends Controller
             
             $json = array('turno' => $turnoSiguiente->turnos[0]->codigo, 'estado' => 0, 'id' => $turnoSiguiente->id);   
 
-            event(new TurnWasReceived($turnoSiguiente->turnos[0]->codigo, Modulo::find($id)));
+            try{
+                //event(new TurnWasReceived($turnoSiguiente->turnos[0]->codigo, Modulo::find($id)));
+            }catch(Exception $e){
+
+            }
+            
             
             return json_encode($json);
         }
@@ -251,6 +259,7 @@ class TurnoController extends Controller
     public function distraido(Request $request){
         $id_turno = $request->input('id');
         $id_modulo = $request->input('id_modulo');
+        $nombre = $request->input('nombre');
         $turno = GrupoFamiliar::with('turnos')->find($id_turno);
         if ($turno->cantLlamados == 3) {
             $turno->estado = 4;
@@ -262,7 +271,7 @@ class TurnoController extends Controller
             
             $turno->push();
         }
-        return $this->llamar($id_modulo, 1);
+        return $this->llamar($id_modulo, 1, $nombre);
     }
     /**
         Metodo que permite finalizar la atencion de un turno en recepcion
@@ -270,19 +279,27 @@ class TurnoController extends Controller
     public function finalizar(Request $request){
         $id_turno = $request->input('id');
         $id_modulo = $request->input('id_modulo');
+        $nombre = $request->input('nombre');
         $turno = GrupoFamiliar::find($id_turno);
         $turno->estado = 4;
         $turno->save();        
-        return $this->llamar($id_modulo,0);
+        return $this->llamar($id_modulo,0, $nombre);
     }
  
     /**
+        Metodo que permite cargar la vista de la recepcionista
+    */
+    public function viewLlamarTurno($id, $nombre){
+        $nombreModulo = Modulo::find($id)->nombre;
+        $motivoPausa = MotivoPausa::all();
+        return view('turno.llamar', compact('nombreModulo','id', 'motivoPausa','nombre'));
+    }
+    /**
         Metodo que permite cargar la vista de la informadora
     */
-    public function viewLlamarTurno($id){
-        $nombre = Modulo::find($id)->nombre;
-        $motivoPausa = MotivoPausa::all();
-        return view('turno.llamar', compact('nombre','id', 'motivoPausa'));
+    public function viewLoadInformadora($id, $nombre){
+        $tipoPaciente = TipoPaciente::where('tipo',0)->get();
+        return view("turno.entrega", compact('tipoPaciente', 'id', 'nombre'));
     }
 
     //-------------------------------------------------------

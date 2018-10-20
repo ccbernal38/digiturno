@@ -33,11 +33,14 @@ Route::post('/sede/modulos', function(Request $request){
 	$id = $request->input('id_sede');
 	return App\Modulo::where('sedes_id',$id)->get();
 });
-Route::get('/llamar/{id}', 'TurnoController@viewLlamarTurno');
+Route::get('/llamar/{id}/{nombre}', 'TurnoController@viewLlamarTurno');
+Route::get('/turno/{id}/{nombre}', 'TurnoController@viewLoadInformadora');
 Route::get('/contenido', 'TurnoController@viewLlamarTurno');
 
 //Recepcion
 Route::post('/llamarTurno', 'TurnoController@llamarTurno');
+Route::get('/llamarTurno', 'TurnoController@llamarTurno');
+
 Route::post('/distraido', 'TurnoController@distraido');
 Route::post('/finalizar', 'TurnoController@finalizar');
 
