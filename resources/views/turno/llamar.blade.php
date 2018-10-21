@@ -109,8 +109,11 @@
 		 });
 
 		$("#finalizar").click(function (e) {		 	
-			e.preventDefault(); 			
+			//e.preventDefault(); 			
 			finalizar();
+			
+			$("#modal-finalizar").modal('hide');
+
 		});	
 		$('#aceptarModalPausar').click(function(event) {
 			event.preventDefault();
@@ -155,6 +158,7 @@
 					$("#nextTurno").hide();
 					temporizador();
 				}	
+				
 					
 			},
 			error: function (data) {
