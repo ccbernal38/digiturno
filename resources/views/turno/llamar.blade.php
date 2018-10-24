@@ -123,19 +123,21 @@
 	function llamarTurno(){
 		clearTimeout(timeout);
 		$("#nextTurno").prop('disabled', true);
+		var json = {
+			"id":$('#modulo').val(),
+			"nombre":$('#nombreRecepcion').val(),
+		};
+		console.log(json);
 		$.ajax({
 			headers: {
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-				'Content-Type':'application/json;charset=utf8'
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
 			type: 'POST',
 			url: '/llamarTurno',
 			dataType: 'json',
-			data:{
-				"id":$('#modulo').val(),
-				"nombre":$('#nombreRecepcion').val(),
-			},
+			data: json,
 			success: function (data) {
+				console.log(data);
 				$("#nextTurno").prop('disabled', false);
 				$('.body-llamar').empty();
 				if(data.estado == 1){

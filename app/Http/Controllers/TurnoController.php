@@ -187,9 +187,9 @@ class TurnoController extends Controller
     */
     public function llamarTurno(Request $request){
         //logica para siguiente turno
-        $id = $request->input('id');
+        $modulo_id = $request->input('id');
         $nombre = $request->input('nombre');
-        return $this->llamar($id,0,$nombre);
+        return $this->llamar($modulo_id,0,$nombre);
     }
 
     /**
@@ -214,10 +214,15 @@ class TurnoController extends Controller
             }
             
             
-            $json = array('turno' => $turnoSiguiente->turnos[0]->codigo, 'estado' => 0, 'id' => $turnoSiguiente->id);   
+            $json = array(
+                'turno' => $turnoSiguiente->turnos[0]->codigo, 
+                'estado' => 0, 
+                'id' => $turnoSiguiente->id,
+                'modulo_id' => $id
+            );   
 
             try{
-                //event(new TurnWasReceived($turnoSiguiente->turnos[0]->codigo, Modulo::find($id)));
+                event(new TurnWasReceived($turnoSiguiente->turnos[0]->codigo, Modulo::find($id), $id));
             }catch(Exception $e){
 
             }

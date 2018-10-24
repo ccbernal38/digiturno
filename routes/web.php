@@ -13,7 +13,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\GrupoFamiliar;
-
+use App\contenido;
 
 Route::get('/','SedeController@index');
 Route::resource('turno', 'TurnoController');
@@ -21,7 +21,8 @@ Route::resource('cargar', 'ContenidoController');
 
 Route::get('/tv', function(){
 	$turnos = App\Turnos::where('estado', 1)->get();
-	return view('tv.index',compact('turnos'));
+	$contenido = contenido::orderBy('duracion','asc')->get();
+	return view('tv.index',compact('turnos', 'contenido'));
 });
 
 Route::get('/tvprueba', function(){
@@ -39,7 +40,7 @@ Route::get('/contenido', 'TurnoController@viewLlamarTurno');
 
 //Recepcion
 Route::post('/llamarTurno', 'TurnoController@llamarTurno');
-Route::get('/llamarTurno', 'TurnoController@llamarTurno');
+
 
 Route::post('/distraido', 'TurnoController@distraido');
 Route::post('/finalizar', 'TurnoController@finalizar');
@@ -50,7 +51,6 @@ Route::post('/actualizarMostrarTV', 'TurnoController@quitarTV');
 
 //Informadora
 Route::post('/turno/entrega', ['uses' => 'TurnoController@entrega']);
-Route::post('/llamarTurno', 'TurnoController@llamarTurno');
 Route::post('/distraido', 'TurnoController@distraido');
 Route::post('/finalizar', 'TurnoController@finalizar');
 Route::get('/imprimir/{turno}',  'TurnoController@imprimir');

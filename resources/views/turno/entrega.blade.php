@@ -54,7 +54,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container"><a class="botonEntrega"  data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4">INFORMACIÓN</a><div class="collapse" id="collapseExample4">
+			<div class="container"><a class="botonEntrega"  data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4">INFORMACIÓN Y OTROS</a><div class="collapse" id="collapseExample4">
 				<div class="card card-body">
 						<input type="submit" value="Turno" id="submitInformacion">					
 					</div>

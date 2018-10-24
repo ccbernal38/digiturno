@@ -8,78 +8,67 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
-<link rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-
-
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
 	<style>
 		html{
 			cursor: all;
 		}
-
 		html,body{height:100%;}
-.carousel,.item,.active{height:100%;}
-.carousel-inner{height:100%;}
-/* Standard syntax */
-
+		.carousel,.item,.active{height:100%;}
+		.carousel-inner{height:100%;}
 	</style>
 
 </head>
 <body>
-<!--<body>-->
 	<div style="margin-left: 0px; margin-right: 0px; height: 100%;background-color: white;">
 		<div class="row" style="height: 100%; width: 100%">
 			<div class="col-md-8">
-				<div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel">
+				<div id="carouselExampleIndicators" class="carousel slide" data-interval="false" >
+					<ol class="carousel-indicators">
+						@for ($i = 0; $i < count($contenido); $i++)						 
+						 	@if($i == 0)
+								<li data-target="#carouselExampleIndicators" class="active"></li>
+							@else
+								<li data-target="#carouselExampleIndicators" ></li>
+							@endif						  
+						@endfor
+					</ol>
 					<div class="carousel-inner">
-						<div class="carousel-item ">
-							<img class="d-block h-100" src="/upload/2.jpg" alt="First slide" height="100%" width="100%">
-						</div>
-						<div class="carousel-item video active">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/1.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/3.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/4.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/5.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/6.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/7.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/8.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/9.mp4"  type="video/mp4" />
-							</video>
-						</div>
-						<div class="carousel-item video">
-							<video class="d-block h-100"  height="100%" width="100%" autoplay>
-								<source src="/upload/10.mp4"  type="video/mp4" />
-							</video>
-						</div>
+						@for ($i = 0; $i < count($contenido) ; $i++)
+							@if ($contenido[$i]->tipo == 1)
+								@if($i == 0)
+									<div class="carousel-item active">										
+										<img class="d-block h-100" src="{{ $contenido[$i]->url }}" alt="First slide" height="100%" width="100%">							<input type="hidden" value="{{ $contenido[$i]->duracion }}">
+									</div>
+								@else
+									<div class="carousel-item ">										
+										<img class="d-block h-100" src="{{ $contenido[$i]->url }}" alt="First slide" height="100%" width="100%">
+										<input type="hidden" value="{{ $contenido[$i]->duracion }}">
+
+									</div>
+								@endif
+							@else
+								@if($i == 0)
+									<div class="carousel-item video active">
+										
+										<video class="d-block h-100"  height="100%" width="100%" >
+											<source src="{{ $contenido[$i]->url }}"  type="video/mp4" />
+										</video>
+										<input type="hidden" value="{{ $contenido[$i]->duracion }}">
+									</div>
+								@else
+									<div class="carousel-item video">
+										
+										<video class="d-block h-100"  height="100%" width="100%" >
+											<source src="{{ $contenido[$i]->url }}"  type="video/mp4" />
+										</video>
+										<input type="hidden" value="{{ $contenido[$i]->duracion }}">
+
+									</div>
+								@endif
+							@endif		
+						@endfor
+						
 					</div>
 				</div>
 			</div>
@@ -108,7 +97,6 @@
 				@endfor  
 			</div>	
 		</div>	
-	
 	</div>
 	<audio id="buzzer" src="/sound/timbre.ogg" type="audio/ogg"/>
 
@@ -119,17 +107,33 @@
 
 <script>
 	$(document).ready(function(){
-		$('.carousel').carousel();
-		$('#carouselExampleFade').on('slide.bs.carousel', function () {
-			try {
-    			document.getElementsByClassName('active')[0].firstElementChild.play();
-			}
-			catch(err) {
-			
-			}
-	
+		$('.carousel').carousel('pause');
+
+		setTimeout(function() {
+			$('.carousel').carousel('next');
+			try{$($(".active")[1]).children('video')[0].play();}catch(err){}
+
+		}, $('.active > input').val());
+				
+		$('.carousel').on('slid.bs.carousel', function (e) {
+			try{
+				$('.carousel').carousel('pause');				
+				$($(".active")[1]).children('video')[0].play();
+				
+			}catch(err) {
+				console.log(err);
+			}			
 		});
-		
+		$('video').on('ended',function(){
+			try{
+				console.log("ended");
+	     		$('.carousel').carousel('next');
+	     						$($(".active")[1]).children('video')[0].play();
+
+     		}catch(err) {
+				console.log(err);
+			}	
+    	});   	
 	});
 	function isEmpty( el ){
 		return !$.trim(el.html())
@@ -153,16 +157,6 @@
 	  });
 	}
 </script>
-<script type="text/javascript">
-    
-    $('video').on('play', function (e) {
-    	$("#carouselExampleFade").carousel('pause');
-	});
-	$('video').on('stop pause ended', function (e) {
-	    $("#carouselExampleFade").carousel();
-	});
 
-	
-</script>
 </body>
 </html>

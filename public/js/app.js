@@ -17229,6 +17229,7 @@ Echo.channel('turn-channel').listen('TurnWasReceived', function (data) {
 	for (var j = 0; j < 5; j++) {
 		var h3Turno = $("#turno" + j + " h3");
 		var h3Modulo = $("#modulo" + j + " h3");
+    console.log(data);
 		if (isEmpty(h3Turno)) {
 			h3Turno.text(data.turno);
 			h3Modulo.text(data.modulo.nombreVisible);

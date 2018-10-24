@@ -16,15 +16,17 @@ class TurnWasReceived implements ShouldBroadcast
 
     public $turno;
     public $modulo;
+    public $modulo_id;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($turno, $modulo)
+    public function __construct($turno, $modulo, $modulo_id)
     {
         $this->turno = $turno;
         $this->modulo = $modulo;
+        $this->modulo_id = $modulo_id;
     }
 
     /**
