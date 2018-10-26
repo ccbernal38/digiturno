@@ -112,7 +112,6 @@
 		setTimeout(function() {
 			$('.carousel').carousel('next');
 			try{$($(".active")[1]).children('video')[0].play();}catch(err){}
-
 		}, $('.active > input').val());
 				
 		$('.carousel').on('slid.bs.carousel', function (e) {
@@ -127,6 +126,7 @@
 		$('video').on('ended',function(){
 			try{
 				console.log("ended");
+				$(this).currentTime = 0;
 	     		$('.carousel').carousel('next');
 	     						$($(".active")[1]).children('video')[0].play();
 

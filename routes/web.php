@@ -61,9 +61,9 @@ Route::post('/llamarTurnoInfo', 'TurnoController@llamarTurnoInfo');
 Route::post('/distraidoInfo', 'TurnoController@distraidoInfo');
 Route::post('/finalizarInfo', 'TurnoController@finalizarInfo');
 
-Route::get('/admin/turnos', function(){
-	return view("admin.index");
-});
+Route::get('/admin/turnos', 'AdministradorController@viewColaTurnos');
+Route::post('/admin/turnos', 'AdministradorController@getColaTurnos');
+
 Route::get('/admin/modulos', function(){
 	return view("admin.modulos");
 });

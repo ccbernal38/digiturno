@@ -58,7 +58,10 @@
 		$('#entrar').click(function(event) {
 			if ($('#recepcionInput').val() != "") {
 				if($(".selector-modulo").val() != -1){
-					if($(".selector-modulo").val() == 21){
+					if($(".selector-modulo option:selected").text() == "Administracion"){
+						window.location="/admin/turnos";	
+					}
+					else if($(".selector-modulo").val() == 21){
 						window.location="/turno/"+$(".selector-modulo").val()+"/"+encodeURI($('#recepcionInput').val());	
 					}else{
 						window.location="/llamar/"+$(".selector-modulo").val()+"/"+encodeURI($('#recepcionInput').val());		

@@ -12,6 +12,7 @@
 <body style="background-color: white;">
 	<header>
 		<div class="row">
+			
 			<div class="col-md-4">
 				<img src="/img/logo-analizar-web-2017.png" alt="">		
 			</div>
@@ -28,12 +29,12 @@
 		
 		</div>
 	</header>
-
-	<div>
-		<div class="border-container">
-			
-			
-		</div>
+	<div class="container">			
+		<div id="contenido" class="col-md-12">
+			<div class="row">			
+				<h5 style="color: white">Cargando...</h5>
+			</div>
+		</div>			
 	</div>
 </body>
 
@@ -42,8 +43,62 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 <script>
 	$(document).ready(function(){
-		
+		update();
+		var t=setInterval(update,1000);
 	});
+	function update(){
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			type: 'POST',
+			url: '/admin/turnos',
+			dataType: 'json',
+			success: function (data) {
+				$('#contenido').empty();
+				var j = 0;
+				for (var i = 0; i < Math.round((data.length/4)+0.5); i++) {
+					$( "#contenido" ).append( "<div id=\"row"+i+"\" class=\"row\" style=\"margin-top:1%\">" );
+					for (; j < data.length; j++) {
+						var estado = "En sala";
+						if(data[j].estado == 2)
+							estado = "Distraido";
+						var tiempoCreado = new Date(data[j].turnos[0].created_at);
+						var now = Date.now();
+						
+
+						$("#row"+i).append("<div class=\"col-md-4\">"+
+								"<div class=\"card\" style=\"width: 100%;\">"+
+									"<div class=\"card-body\">"+
+										"<h5 class=\"card-title\"><strong>Turno "+data[j].turnos[0].codigo+"</strong></h5>"+
+										"<p class=\"card-text\">Tiempo en sala: <strong>"+msToTime(now - tiempoCreado)+"</strong></p>"+
+										"<p class=\"card-text\">Estado: <strong>"+estado+"</strong></p>"+
+										"<p class=\"card-text\">Cantidad de llamados: <strong>"+data[j].turnos[0].cantLlamados+"</strong></p></div></div></div>");
+						//console.log(data[j].turnos);
+						if(j > 0 && (j+1)%3 == 0){							
+							j++;
+							break;
+						}
+					}
+				}
+			},
+			error: function (data) {
+				console.log('Error:', data);
+			}
+		});
+		function msToTime(duration) {
+			var milliseconds = parseInt((duration % 1000) / 100),
+			seconds = parseInt((duration / 1000) % 60),
+			minutes = parseInt((duration / (1000 * 60)) % 60),
+			hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+
+			hours = (hours < 10) ? "0" + hours : hours;
+			minutes = (minutes < 10) ? "0" + minutes : minutes;
+			seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+			return hours + ":" + minutes + ":" + seconds;
+		}
+	}
 
 </script>
 </html>
