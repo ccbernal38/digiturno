@@ -106,6 +106,7 @@
 		 $("#atender").click(function (e) {		 	
 			e.preventDefault(); 			
 			detener = 1;
+			totalTiempo = 30;
 		 });
 
 		$("#finalizar").click(function (e) {		 	
