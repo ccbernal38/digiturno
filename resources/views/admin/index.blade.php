@@ -16,7 +16,7 @@
 			<div class="col-md-4">
 				<img src="/img/logo-analizar-web-2017.png" alt="">		
 			</div>
-			<div class="col-md-6 offset-md-1" >
+			<div class="col-md-4" >
 				<ul class="nav nav-pills" style="height:100%; align-items: center;">
 					<li class="nav-item">
 						<a class="nav-link active" href="/admin/turnos">Cola de turnos</a>
@@ -26,9 +26,10 @@
 					</li>
 				</ul>
 			</div>		
-		
-		</div>
+		<h1 class="col-md-3" style="vertical-align: middle; margin: auto;margin-right: 5%;color:#00408b;"><strong>{{ $nombre }}</strong></h1>
+		</div>	
 	</header>
+	<input id="user_id" type="hidden" value="{{ $user_id }}">
 	<div class="container">			
 		<div id="contenido" class="col-md-12">
 			<div class="row">			

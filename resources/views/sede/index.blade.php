@@ -15,38 +15,41 @@
 	</header>
 
 	<div>
-		<div class="border-container">
-			<div class="container" style="background-color: white;">
-				<a class="botonEntrega" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></a>
-				<div class="card card-body">
-					<label for="inputState">Sede:</label>							
-					<select name="recepcion" id="inputState" class="form-control selector-sede">
-							<option value="-1"></option>
-						@foreach ($sedes as $item)
-						    <option value="{{ $item->id }}"> {{ $item->nombre }} </option>
-							@endforeach    
-					</select>							
+		<form action="/login" method="POST">
+			<input type="hidden" name="_token" value="{{ csrf_token() }}">
+			<div class="border-container">
+				<div class="container" style="background-color: white;">
+					<a class="botonEntrega" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></a>
+					<div class="card card-body">
+						<label for="inputState">Sede:</label>							
+						<select name="recepcionSede" id="inputState" class="form-control selector-sede">
+								<option value="-1"></option>
+							@foreach ($sedes as $item)
+							    <option value="{{ $item->id }}"> {{ $item->nombre }} </option>
+								@endforeach    
+						</select>							
+					</div>
 				</div>
-			</div>
-			<div class="container" style="background-color: white;">
-				<a class="botonEntrega" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></a>
-				<div class="card card-body">
-					<label for="inputState">Modulo:</label>							
-					<select name="recepcion" id="inputState" class="form-control selector-modulo">
-							<option value="-1"></option>
+				<div class="container" style="background-color: white;">
+					<a class="botonEntrega" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></a>
+					<div class="card card-body">
+						<label for="inputState">Modulo:</label>							
+						<select name="recepcionModulo" id="inputState" class="form-control selector-modulo">
+								<option value="-1"></option>
 
-					</select>							
+						</select>							
+					</div>
+				</div>
+				<div class="container" style="background-color: white;">
+					<a class="botonEntrega" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></a>
+					<div class="card card-body">
+						<label for="recepcionInput">Recepcionista:</label>							
+						<input id="recepcionInput" type="number" class="form-control" name="documento" placeholder="Ingrese su numero de cedula">							
+						<input type="submit" class="btn btn-primary" id="entrar" value="Entrar" style="margin: auto;margin-top: 20px;">
+					</div>
 				</div>
 			</div>
-			<div class="container" style="background-color: white;">
-				<a class="botonEntrega" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"></a>
-				<div class="card card-body">
-					<label for="recepcionInput">Recepcionista:</label>							
-					<input id="recepcionInput" type="text" class="form-control" placeholder="Ingrese su nombre">							
-					<input type="submit" class="btn btn-primary" id="entrar" value="Entrar" style="margin: auto;margin-top: 20px;">
-				</div>
-			</div>
-		</div>
+		</form>
 	</div>
 </body>
 
@@ -55,25 +58,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 <script>
 	$(document).ready(function(){
-		$('#entrar').click(function(event) {
-			if ($('#recepcionInput').val() != "") {
-				if($(".selector-modulo").val() != -1){
-					if($(".selector-modulo option:selected").text() == "Administracion"){
-						window.location="/admin/turnos";	
-					}
-					else if($(".selector-modulo").val() == 21){
-						window.location="/turno/"+$(".selector-modulo").val()+"/"+encodeURI($('#recepcionInput').val());	
-					}else{
-						window.location="/llamar/"+$(".selector-modulo").val()+"/"+encodeURI($('#recepcionInput').val());		
-					}				
-				}else{
-					alert("Debe seleccionar un modulo");
-				}
-			}else{
-				alert("Debe ingresar su nombre antes de continuar");
-			}
-		});
-
 		$(".selector-sede").change(function() {
 			$(".selector-modulo").empty();
 			$.ajax({
