@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Sede;
 use Illuminate\Http\Request;
+use App\User;
+use App\Modulo;
+use App\MotivoPausa;
+use App\TipoPaciente;
 
 class SedeController extends Controller
 {
@@ -18,6 +22,31 @@ class SedeController extends Controller
         return view('sede.index', compact('sedes'));    
     }
 
+
+    public function login(Request $request){
+        $documento = $request->input('documento');
+        $modulo_id = $request->input('recepcionModulo');
+        $sede_id = $request->input('recepcionSede');
+        $modulo = Modulo::find($modulo_id);
+        $user = User::where('username', $documento)->get()[0];
+        $user_id = $user->id;        
+        $nombre = $user->name;
+        $id = $modulo->id;
+
+        if($modulo->tipo == 1){
+            //LLamado de turno
+            $nombreModulo = $modulo->nombre;
+            $motivoPausa = MotivoPausa::all();
+            return view('turno.llamar', compact('nombreModulo', 'id', 'motivoPausa', 'nombre', 'user_id'));
+        }else if ($modulo->tipo == 3) {
+            //Información
+            $tipoPaciente = TipoPaciente::where('tipo',0)->get();
+            return view("turno.entrega", compact('tipoPaciente', 'id', 'nombre', 'user_id'));
+        } else if ($modulo->tipo == 4) {
+            //Administración
+            return redirect()->route('cola', ['nombre' => $nombre, 'user_id' => $user_id]);
+        }
+    }
     /**
      * Show the form for creating a new resource.
      *

@@ -14,6 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\GrupoFamiliar;
 use App\contenido;
+use App\User;
+use Illuminate\Support\Facades\Hash;
+
 
 Route::get('/','SedeController@index');
 Route::resource('turno', 'TurnoController');
@@ -25,9 +28,47 @@ Route::get('/tv', function(){
 	return view('tv.index',compact('turnos', 'contenido'));
 });
 
-Route::get('/tvprueba', function(){
-	$turnos = App\Turnos::where('estado', 1)->get();
-	return view('tv.index2',compact('turnos'));
+Route::post('/create/role', function(Request $request){
+	$mensaje = "Se ha registrado correctamente el nuevo rol";
+	$tipo = 0;
+	try {
+		$role = new App\Roles();
+		$role->nombre = $request->input('role_name');
+		$role->descripcion = $request->input('role_description');
+		$role->save();
+		
+	} catch (Exception $e) {
+		$mensaje = "Se ha producido un error registrando el nuevo rol";
+		$tipo = 1;
+	}
+	//return $request->input('role_name');
+	
+	return view('user.role',compact('mensaje', 'tipo'));
+});
+
+Route::get('/create/role', function(){
+	return view('user.role');
+});
+
+Route::get('/create/user', function(){
+	$roles = App\roles::all();
+	return view('user.create',compact('roles'));
+});
+
+Route::post('/create/user', function(Request $request){
+	$user = new User();
+	$user->name = $request->input('name');
+	$user->username = $request->input('documento');	
+	$user->password = Hash::make($request->input('documento'));	
+	$user->save();
+	$user->roles()->sync($request->input('checkd'));
+	$user->save();
+	return view('user.create', compact('roles'));
+});
+
+Route::post('/login', 'SedeController@login');
+Route::get('/login', function(){
+	return redirect('/');
 });
 
 Route::post('/sede/modulos', function(Request $request){
@@ -67,3 +108,4 @@ Route::post('/admin/turnos', 'AdministradorController@getColaTurnos');
 Route::get('/admin/modulos', function(){
 	return view("admin.modulos");
 });
+Route::get('/prueba', 'TurnoController@resetConsecutivo');

@@ -10,9 +10,11 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
-	<header>
+	<header class="row">
 		<img src="/img/logo-analizar-web-2017.png" alt="">
+		<h1 style="vertical-align: middle; margin: auto;margin-right: 5%;color:#00408b;"><strong>{{ $nombre }}</strong></h1>
 	</header>
+	<input id="user_id" type="hidden" value="{{ $user_id }}">
 	<input id="modulo" type="hidden" value="{{ $id }}">
 	<div>
 		<div class="border-container">

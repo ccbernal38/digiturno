@@ -188,46 +188,39 @@ class TurnoController extends Controller
     public function llamarTurno(Request $request){
         //logica para siguiente turno
         $modulo_id = $request->input('id');
-        $nombre = $request->input('nombre');
-        return $this->llamar($modulo_id,0,$nombre);
+        $user_id = $request->input('user_id');
+        return $this->llamar($modulo_id, 0,$user_id);
     }
 
     /**
         Metodo que permite llamar el turno siguiente en recepcion
     */
-    function llamar($id, $pos, $nombre){
+    function llamar($id, $pos, $user_id){
         $turnoSiguiente = $this->siguienteTurno($pos);
         if(empty($turnoSiguiente)){
             $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
             return json_encode($json);
-        }else{
+        }else
+        {
             $grupoFamiliar = $turnoSiguiente;
             $grupoFamiliar->estado = 1;
             $grupoFamiliar->save();
             for ($i=0; $i < count($turnoSiguiente->turnos); $i++) { 
                $turnoSiguiente->turnos[$i]->estado = 1;
                 $turnoSiguiente->turnos[$i]->enTV = 0;
-                $turnoSiguiente->turnos[$i]->modulos()->attach($id, ['nombre' => $nombre]);
+                $turnoSiguiente->turnos[$i]->modulos()->attach($id, ['user_id' => $user_id]);
                 $turnoSiguiente->turnos[$i]->grupo_familiar_id = $grupoFamiliar->id;
                 $turnoSiguiente->turnos[$i]->llamado = Carbon::now();
                 $turnoSiguiente->turnos[$i]->save();
             }
-            
-            
             $json = array(
-                'turno' => $turnoSiguiente->turnos[0]->codigo, 
-                'estado' => 0, 
-                'id' => $turnoSiguiente->id,
-                'modulo_id' => $id
-            );   
-
-            try{
-                event(new TurnWasReceived($turnoSiguiente->turnos[0]->codigo, Modulo::find($id), $id));
-            }catch(Exception $e){
-
-            }
-            
-            
+                    'turno' => $turnoSiguiente->turnos[0]->codigo, 
+                    'estado' => 0, 
+                    'id' => $turnoSiguiente->id,
+                    'modulo_id' => $id
+                ); 
+           
+            //$json = array('turno' => "No hay turnos disponibles2", 'estado' => 1);;
             return json_encode($json);
         }
     }
@@ -238,6 +231,7 @@ class TurnoController extends Controller
         1->Toma de muestra
     */
     public function siguienteTurno($servicio){
+        $this->resetConsecutivo();
         if ($servicio == 0) {
             $turnosAnteriores = GrupoFamiliar::with('turnos')->where("estado", 4)->orderBy('updated_at', 'desc')->take(2)->get();
             $turno1 = $turnosAnteriores->get(0)->turnos[0]->prioridad;
@@ -258,13 +252,30 @@ class TurnoController extends Controller
 
     }
 
+    public function resetConsecutivo(){
+         $turnoAnterior = GrupoFamiliar::with('turnos')->where("estado", 4)->orderBy('updated_at', 'desc')->take(1)->get()[0];
+         $fecha = $turnoAnterior->updated_at->format('Y-m-d') . "";
+         $fechaActual = Carbon::now();
+         if($fecha === $fechaActual->format('Y-m-d')){
+            return; 
+         }else{
+            $tipo = TipoPaciente::all();
+            foreach ($tipo as $key) {
+                $key->consecutivo = 1;
+                $key->save();
+            }
+            return;
+         }
+         
+    }
+
     /**
         Metodo que permite cambiar el estado la atencion de un turno en recepcion a distraido
     */
     public function distraido(Request $request){
         $id_turno = $request->input('id');
         $id_modulo = $request->input('id_modulo');
-        $nombre = $request->input('nombre');
+        $user_id = $request->input('user_id');
         $turno = GrupoFamiliar::with('turnos')->find($id_turno);
         if ($turno->cantLlamados == 3) {
             $turno->estado = 4;
@@ -276,7 +287,7 @@ class TurnoController extends Controller
             
             $turno->push();
         }
-        return $this->llamar($id_modulo, 1, $nombre);
+        return $this->llamar($id_modulo, 1, $user_id);
     }
     /**
         Metodo que permite finalizar la atencion de un turno en recepcion
@@ -284,11 +295,11 @@ class TurnoController extends Controller
     public function finalizar(Request $request){
         $id_turno = $request->input('id');
         $id_modulo = $request->input('id_modulo');
-        $nombre = $request->input('nombre');
+        $user_id = $request->input('user_id');
         $turno = GrupoFamiliar::find($id_turno);
         $turno->estado = 4;
         $turno->save();        
-        return $this->llamar($id_modulo,0, $nombre);
+        return $this->llamar($id_modulo,0, $user_id);
     }
  
     /**

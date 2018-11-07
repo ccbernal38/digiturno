@@ -10,11 +10,14 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
-	<header>
+	<header class="row">
 		<img src="/img/logo-analizar-web-2017.png" alt="">
+		<h1 style="vertical-align: middle; margin: auto;margin-right: 5%;color:#00408b;"><strong>{{ $nombre }}</strong></h1>
 	</header>
+	<input id="user_id" type="hidden" value="{{ $user_id }}">
 
 	<div>
+		
 		<div class="row">
 			<h1 style="text-align: center;width: 100%; font-weight: bold;">{{ $nombreModulo }}</h1>
 			<input id="modulo" type="hidden" value="{{ $id }}">
@@ -126,7 +129,7 @@
 		$("#nextTurno").prop('disabled', true);
 		var json = {
 			"id":$('#modulo').val(),
-			"nombre":$('#nombreRecepcion').val(),
+			"user_id":$('#user_id').val(),
 		};
 		console.log(json);
 		$.ajax({
@@ -166,7 +169,7 @@
 			},
 			error: function (data) {
 				
-				console.log('Error:', data);
+				console.log( data);
 			}
 		});
 	}
@@ -181,7 +184,7 @@
 			data:{
 				'id':$('#turno').val(),
 				"id_modulo":$('#modulo').val(),
-				"nombre":$('#nombreRecepcion').val(),
+				"user_id":$('#user_id').val(),
 			},
 			beforeSend: function(){
 				$('#finalizar').attr("disabled", true);
@@ -210,12 +213,10 @@
 					temporizador();
 				}	
 				$('#finalizar').attr("disabled", false);
-					
-								
 			},
 			error: function (data) {
 				
-				console.log('Error:', data);
+				console.log(data);
 			}
 		});
 	}
@@ -223,7 +224,7 @@
 		var json = {
 			'id':$('#turno').val(),
 			"id_modulo":$('#modulo').val(),
-			"nombre":$('#nombreRecepcion').val(),
+			"user_id":$('#user_id').val(),
 		};
 		console.log(json);
 		$.ajax({
@@ -236,7 +237,7 @@
 			data:{
 				'id':$('#turno').val(),
 				"id_modulo":$('#modulo').val(),
-				"nombre":$('#nombreRecepcion').val(),
+				"user_id":$('#user_id').val(),
 			},
 			success: function (data) {
 				console.log(data);
