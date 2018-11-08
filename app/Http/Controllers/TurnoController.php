@@ -219,7 +219,11 @@ class TurnoController extends Controller
                     'id' => $turnoSiguiente->id,
                     'modulo_id' => $id
                 ); 
-           
+           try{
+                    event(new TurnWasReceived($turnoSiguiente->turnos[0]->codigo, Modulo::find($id), $id));
+                }catch(Exception $e){
+
+                }
             //$json = array('turno' => "No hay turnos disponibles2", 'estado' => 1);;
             return json_encode($json);
         }
