@@ -44,7 +44,7 @@ class SedeController extends Controller
             return view("turno.entrega", compact('tipoPaciente', 'id', 'nombre', 'user_id'));
         } else if ($modulo->tipo == 4) {
             //Administración
-            return redirect()->route('cola', ['nombre' => $nombre, 'user_id' => $user_id]);
+            return view('admin.index', compact('nombre','user_id'));
         }
     }
     /**

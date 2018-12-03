@@ -1,6 +1,18 @@
 require('./bootstrap');
 
 Echo.channel('turn-channel').listen('TurnWasReceived', (data) => {
+	var turno  = data.turno;
+	var modulo = data.modulo.nombreVisible;
+
+	for (var i = 0; i < 5; i++) {
+		var h3Turno = $("#turno"+j+" h3").val();
+		var h3Modulo = $("#modulo"+j+" h3").val();
+		if(h3Turno == turno || modulo == h3Modulo){
+			h3Turno.text("");
+			h3Modulo.text("");
+			continue;
+		}
+	}
 	for (var j = 0; j < 5; j++) {
 		var h3Turno = $("#turno"+j+" h3");
 		var h3Modulo = $("#modulo"+j+" h3");
