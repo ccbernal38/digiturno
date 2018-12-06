@@ -201,13 +201,12 @@
 				data: formData,
 				dataType: 'json',
 				success: function (data) {
-					console.log(data);		
-
+					window.open('/imprimir/'+(data), '_blank');
 				},
 				error: function (data) {
-					
-					window.open('/imprimir/'+serialize(data), '_blank');
 					console.log('Error:', data);
+
+					window.open('/imprimir/'+serialize(data), '_blank');
 				}
 			});
 		 }

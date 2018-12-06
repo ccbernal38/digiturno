@@ -137,7 +137,7 @@
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
 			type: 'POST',
-			url: '/llamarTurno',
+			url: '/llamarTurnoAnaliexpress',
 			dataType: 'json',
 			data: json,
 			success: function (data) {
@@ -179,7 +179,7 @@
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
 			type: 'POST',
-			url: '/finalizar',
+			url: '/finalizarAnaliexpress',
 			dataType: 'json',
 			data:{
 				'id':$('#turno').val(),
@@ -232,7 +232,7 @@
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
 			type: 'POST',
-			url: '/distraido',
+			url: '/distraidoAnaliexpress',
 			dataType: 'json',
 			data:{
 				'id':$('#turno').val(),

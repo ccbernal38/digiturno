@@ -81,10 +81,13 @@ Route::get('/contenido', 'TurnoController@viewLlamarTurno');
 
 //Recepcion
 Route::post('/llamarTurno', 'TurnoController@llamarTurno');
-
-
 Route::post('/distraido', 'TurnoController@distraido');
 Route::post('/finalizar', 'TurnoController@finalizar');
+
+//Analiexpress
+Route::post('/llamarTurnoAnaliexpress', 'TurnoController@llamarTurnoAnaliexpress');
+Route::post('/distraidoAnaliexpress', 'TurnoController@distraidoAnaliexpress');
+Route::post('/finalizarAnaliexpress', 'TurnoController@finalizarAnaliexpress');
 
 //Pantalla
 Route::post('/mostrarTV', 'TurnoController@mostrarTV');
