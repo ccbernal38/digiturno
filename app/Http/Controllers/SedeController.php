@@ -45,7 +45,13 @@ class SedeController extends Controller
         } else if ($modulo->tipo == 4) {
             //Administración
             return view('admin.index', compact('nombre','user_id'));
-        }
+        } else if ($modulo->tipo == 5) {
+            //LLamado de turno
+            $nombreModulo = $modulo->nombre;
+            $motivoPausa = MotivoPausa::all();
+            //AnaliExpress
+            return view('turno.llamarAnaliexpress', compact('nombreModulo', 'id', 'motivoPausa', 'nombre', 'user_id'));
+        } 
     }
     /**
      * Show the form for creating a new resource.

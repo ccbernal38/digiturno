@@ -38,7 +38,7 @@
 							@if ($contenido[$i]->tipo == 1)
 								@if($i == 0)
 									<div class="carousel-item active">										
-										<img class="d-block h-100" src="{{ $contenido[$i]->url }}" alt="First slide" height="100%" width="100%">							<input type="hidden" value="{{ $contenido[$i]->duracion }}">
+										<img class="d-block h-100" src="{{ $contenido[$i]->url }}" alt="First slide" height="100%" width="100%" >							<input type="hidden" value="{{ $contenido[$i]->duracion }}">
 									</div>
 								@else
 									<div class="carousel-item ">										
@@ -51,7 +51,7 @@
 								@if($i == 0)
 									<div class="carousel-item video active">
 										
-										<video class="d-block h-100"  height="100%" width="100%" >
+										<video class="d-block h-100" webkit-playsinline="true" playsinline="true" height="100%" width="100%">
 											<source src="{{ $contenido[$i]->url }}"  type="video/mp4" />
 										</video>
 										<input type="hidden" value="{{ $contenido[$i]->duracion }}">
@@ -59,7 +59,7 @@
 								@else
 									<div class="carousel-item video">
 										
-										<video class="d-block h-100"  height="100%" width="100%" >
+										<video class="d-block h-100"  height="100%" width="100%">
 											<source src="{{ $contenido[$i]->url }}"  type="video/mp4" />
 										</video>
 										<input type="hidden" value="{{ $contenido[$i]->duracion }}">
@@ -116,7 +116,8 @@
 				
 		$('.carousel').on('slid.bs.carousel', function (e) {
 			try{
-				$('.carousel').carousel('pause');				
+				console.log('slid.bs.carousel');
+				//$('.carousel').carousel('pause');				
 				$($(".active")[1]).children('video')[0].play();
 				
 			}catch(err) {
@@ -128,10 +129,15 @@
 				console.log("ended");
 				$(this).currentTime = 0;
 	     		$('.carousel').carousel('next');
-	     						$($(".active")[1]).children('video')[0].play();
+	     		setTimeout(function(){
+	     			console.log($(".active"));
+	     			$($(".active")[1]).children('video')[0].play();
+	     		},2000);				
 
      		}catch(err) {
 				console.log(err);
+					     		$('.carousel').carousel('next');
+
 			}	
     	});   	
 	});

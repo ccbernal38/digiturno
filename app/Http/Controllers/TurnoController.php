@@ -85,28 +85,66 @@ class TurnoController extends Controller
     public function entregaTurnoInformacion(Request $request){
         $tipo = $request->input('tipo');
         $id = $request->input('id');
-        if($tipo == 1 || $tipo == 2 || $tipo == 3 || $tipo == 4 || $tipo == 5){
+        if($tipo == 1 || $tipo == 2 || $tipo == 3 || $tipo == 4 ){
             return $this->turnoInfo($tipo, $id);
+        }else if($tipo == 5){
+            return $this->turnoBact($tipo, $id);
         }else{
             $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
             return json_encode($json);
         }
+
+
+
     }
     /**
         Metodo que genera el turno de las informadoras
     */
     public function turnoInfo($tipo){
+                $result = array();
+
         $object = TipoPaciente::where('tipo', $tipo)->get();
-        
+        $grupoFamiliar = new GrupoFamiliar();
+        $grupoFamiliar->estado = 5;
+        $grupoFamiliar->save();
+
         $turno = $object[0]->sigla.$object[0]->consecutivo;
         $object[0]->consecutivo = $object[0]->consecutivo + 1;
         $object[0]->save();
-
+array_push($result,$turno);
         $turnoNuevo = new Turnos();
         $turnoNuevo->codigo = $turno;
         $turnoNuevo->estado = 5;
+        $turnoNuevo->grupo_familiar_id = $grupoFamiliar->id;
         $turnoNuevo->save();
-        return $turno;
+        $grupoFamiliar->prioridad = $object[0]->prioridad;
+        $grupoFamiliar->save();
+       return json_encode($result);      
+    }
+    /**
+        Metodo que genera el turno de las Bacteriologas AnaliExpress
+    */
+    public function turnoBact($tipo){
+        $result = array();
+
+        $object = TipoPaciente::where('tipo', $tipo)->get();
+        $grupoFamiliar = new GrupoFamiliar();
+        $grupoFamiliar->estado = 8;
+        $grupoFamiliar->save();
+
+        $turno = $object[0]->sigla.$object[0]->consecutivo;
+        $object[0]->consecutivo = $object[0]->consecutivo + 1;
+        $object[0]->save();
+        array_push($result,$turno);
+
+        $turnoNuevo = new Turnos();
+        $turnoNuevo->codigo = $turno;
+        $turnoNuevo->estado = 8;
+        $turnoNuevo->grupo_familiar_id = $grupoFamiliar->id;
+        $turnoNuevo->save();
+        $grupoFamiliar->prioridad = $object[0]->prioridad;
+        $grupoFamiliar->save();
+        return json_encode($result);      
     }
 
      /**
@@ -134,6 +172,8 @@ class TurnoController extends Controller
             $json = array('turno' => $turnoSiguiente->codigo, 'estado' => 0, 'id' => $turnoSiguiente->id);            
             return json_encode($json);
         }
+
+       
     }
     /**
         Metodo que permite cambiar el estado la atencion de un turno en recepcion a distraido
@@ -177,7 +217,6 @@ class TurnoController extends Controller
         }else if($servicio == 1){
             return Turnos::where("estado", 5)->orWhere("estado", 6)->take(2)->get()->get(1);
         }
-
     }
     //-------------------------------------------------------
     //              RECEPCION
@@ -235,7 +274,7 @@ class TurnoController extends Controller
         1->Toma de muestra
     */
     public function siguienteTurno($servicio){
-        $this->resetConsecutivo();
+        $this->resetConsecutivo(4);
         if ($servicio == 0) {
             $turnosAnteriores = GrupoFamiliar::with('turnos')->where("estado", 4)->orderBy('updated_at', 'desc')->take(2)->get();
             $turno1 = $turnosAnteriores->get(0)->turnos[0]->prioridad;
@@ -256,8 +295,8 @@ class TurnoController extends Controller
 
     }
 
-    public function resetConsecutivo(){
-         $turnoAnterior = GrupoFamiliar::with('turnos')->where("estado", 4)->orderBy('updated_at', 'desc')->take(1)->get()[0];
+    public function resetConsecutivo($estado){
+         $turnoAnterior = GrupoFamiliar::with('turnos')->where("estado", $estado)->orderBy('updated_at', 'desc')->take(1)->get()[0];
          $fecha = $turnoAnterior->updated_at->format('Y-m-d') . "";
          $fechaActual = Carbon::now();
          if($fecha === $fechaActual->format('Y-m-d')){
@@ -342,5 +381,92 @@ class TurnoController extends Controller
         $turno = Turnos::find($id);
         $turno->enTV = 1;
         $turno->save();
+    }
+    //-------------------------------------------------------
+    //              ANALIEXPRESS
+    //-------------------------------------------------------
+
+    /**
+        Metodo POST para generar el turno de Analiexpress
+    */
+    public function llamarTurnoAnaliexpress(Request $request){
+        //logica para siguiente turno
+        $modulo_id = $request->input('id');
+        $user_id = $request->input('user_id');
+        return $this->llamarAnaliexpress($modulo_id,$user_id);
+    }
+
+    /**
+        Metodo que permite llamar el turno siguiente en Analiexpress
+    */
+    function llamarAnaliexpress($id, $user_id){
+        $turnoSiguiente = $this->siguienteTurnoAnaliexpress();
+        if(empty($turnoSiguiente)){
+            $json = array('turno' => "No hay turnos disponibles", 'estado' => 1);;
+            return json_encode($json);
+        }else
+        {
+            $grupoFamiliar = $turnoSiguiente;
+            $grupoFamiliar->estado = 1;
+            $grupoFamiliar->save();
+            for ($i=0; $i < count($turnoSiguiente->turnos); $i++) { 
+               $turnoSiguiente->turnos[$i]->estado = 1;
+                $turnoSiguiente->turnos[$i]->enTV = 0;
+                $turnoSiguiente->turnos[$i]->modulos()->attach($id, ['user_id' => $user_id]);
+                $turnoSiguiente->turnos[$i]->grupo_familiar_id = $grupoFamiliar->id;
+                $turnoSiguiente->turnos[$i]->llamado = Carbon::now();
+                $turnoSiguiente->turnos[$i]->save();
+            }
+            $json = array(
+                    'turno' => $turnoSiguiente->turnos[0]->codigo, 
+                    'estado' => 0, 
+                    'id' => $turnoSiguiente->id,
+                    'modulo_id' => $id
+                ); 
+            return json_encode($json);
+        }
+    }
+   
+    /**
+        Logica de colas
+        0->Recepcion
+        1->Toma de muestra
+    */
+    public function siguienteTurnoAnaliexpress(){
+        
+        return GrupoFamiliar::with('turnos')->where("estado", 8)->orWhere("estado", 9)->get()->get(0);
+    }
+
+     /**
+        Metodo que permite cambiar el estado la atencion de un turno en recepcion a distraido
+    */
+    public function distraidoAnaliexpress(Request $request){
+        $id_turno = $request->input('id');
+        $id_modulo = $request->input('id_modulo');
+        $user_id = $request->input('user_id');
+        $turno = GrupoFamiliar::with('turnos')->find($id_turno);
+        if ($turno->cantLlamados == 3) {
+            $turno->estado = 10;
+            $turno->save();            
+        }else{
+            $turno->estado = 9;
+            $turno->turnos[0]->enTV = 0;
+            $turno->turnos[0]->cantLlamados = $turno->cantLlamados + 1;
+            
+            $turno->push();
+        }
+        return $this->llamarAnaliexpress($id_modulo, $user_id);
+    }
+    /**
+        Metodo que permite finalizar la atencion de un turno en recepcion
+    */
+    public function finalizarAnaliexpress(Request $request){
+        $id_turno = $request->input('id');
+        $id_modulo = $request->input('id_modulo');
+        $user_id = $request->input('user_id');
+        $turno = GrupoFamiliar::find($id_turno);
+        $turno->estado = 10;
+        $turno->save();        
+        return $this->llamarAnaliexpress($id_modulo, $user_id);
     }
 }
