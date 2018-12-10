@@ -296,7 +296,7 @@ array_push($result,$turno);
     }
 
     public function resetConsecutivo($estado){
-         $turnoAnterior = GrupoFamiliar::with('turnos')->where("estado", $estado)->orderBy('updated_at', 'desc')->take(1)->get()[0];
+         $turnoAnterior = GrupoFamiliar::with('turnos')->where("estado", $estado)->orderBy('created_at', 'desc')->take(1)->get()[0];
          $fecha = $turnoAnterior->updated_at->format('Y-m-d') . "";
          $fechaActual = Carbon::now();
          if($fecha === $fechaActual->format('Y-m-d')){
